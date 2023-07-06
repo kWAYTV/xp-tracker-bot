@@ -1,0 +1,34 @@
+const router = require('express').Router();
+const medals_controller = require('../controllers/medals.controller.js');
+const steam_controller = require('../controllers/steam.controller.js');
+
+// POST Init
+router.get('/getmedals', async function(req, res) {
+    const steamID = req.query.id
+
+    // Check if steamID is provided
+    if (!steamID) {
+        return res.status(400).json({
+            success: false,
+            message: 'Missing parameters (id)!'
+        });
+    }
+
+    console.log("Checking ID:", steamID/*, "Steam id:", id*/);
+    let data = await steam_controller.request_player_profile(steamID);
+    console.log(data)
+
+    let steamid64 = data["account_id"] + 76561197960265728; // Convert to 64 bit steam id
+    let medal_ids = data["medals"]["display_items_defidx"];
+
+    // Map the ids to names and PNG file names
+    let medals = medals_controller.get_medal_ids(medal_ids);
+
+    return res.status(200).json({
+        steamid64: steamid64,
+        medals: medals,
+    });
+
+});
+
+module.exports = router;

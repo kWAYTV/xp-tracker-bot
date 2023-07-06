@@ -1,0 +1,1 @@
+require('./src/server').start(4411 || 4422);
