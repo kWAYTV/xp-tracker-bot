@@ -16,7 +16,6 @@ module.exports.get_medals = function(medal_ids) {
     let medals = medal_ids.map(id => ({
         medal_id: id,
         medal_name: medalIdsToNames[id],
-        medal_file: `${id}.png`,
     }));
     return medals;
 

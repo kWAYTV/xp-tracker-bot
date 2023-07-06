@@ -1,6 +1,7 @@
 const SteamUser = require('steam-user');
 const GlobalOffensive = require('globaloffensive');
 const medals_controller = require('../controllers/medals.controller.js');
+const canvas_creator = require('../util/canvas.js');
 require('dotenv').config();
 
 let user = new SteamUser();
@@ -33,7 +34,7 @@ csgo.on("disconnectedFromGC", () => {
     console.log("GC stopped");
 });
 
-module.exports.request_player_medals = function (steamID) {
+module.exports.request_player_medals = function (steamID, queue_id) {
     return new Promise((resolve, reject) => {
         steamID = steamID.replace(/\s/g, '');
 
@@ -42,7 +43,7 @@ module.exports.request_player_medals = function (steamID) {
             return reject({ success: false, error: "GC not started" });
         }
 
-        console.log("Checking ID:", steamID);
+        console.log("Checking ID:", steamID, "Queue ID:", queue_id);
         csgo.requestPlayersProfile(steamID, (data, err) => {
 
             if (err) {
@@ -54,6 +55,7 @@ module.exports.request_player_medals = function (steamID) {
             if (medal_ids) {
                 // Map the ids to names and PNG file names
                 let medals = medals_controller.get_medals(medal_ids);
+                canvas_creator.create(medals, queue_id);
                 resolve({ success: true, steamid64: steamID, medals: medals });
             }
             else {
