@@ -26,29 +26,30 @@ csgo.on("disconnectedFromGC", () => {
     console.log("GC stopped");
 });
 
-module.exports.request_player_medals = async function(steamID) {
+module.exports.request_player_medals = function(steamID) {
+    return new Promise((resolve, reject) => {
+        steamID = steamID.replace(/\s/g, '');
 
-    steamID = steamID.replace(/\s/g, '');
-
-    if (!csgo.haveGCSession) {
-        console.error("GC not started");
-        return {success: false, error: "GC not started"};
-    }
-
-    console.log("Checking ID:", steamID);
-    csgo.requestPlayersProfile(steamID, (data, err) => {
-
-        if (err || data === undefined) {
-            console.error("Failed to request player profile:", err);
-            return {success: false, error: err};
+        if (!csgo.haveGCSession) {
+            console.error("GC not started");
+            reject({success: false, error: "GC not started"});
         }
 
-        let medal_ids = data["medals"]["display_items_defidx"];
+        console.log("Checking ID:", steamID);
+        csgo.requestPlayersProfile(steamID, (data, err) => {
 
-        // Map the ids to names and PNG file names
-        let medals = medals_controller.get_medal_ids(medal_ids);
+            if (err || data === undefined) {
+                console.error("Failed to request player profile:", err);
+                reject({success: false, error: err});
+            }
 
-        return {success: true, steamid64: steamID, medals: medals};
+            let medal_ids = data["medals"]["display_items_defidx"];
 
+            // Map the ids to names and PNG file names
+            let medals = medals_controller.get_medal_ids(medal_ids);
+
+            resolve({success: true, steamid64: steamID, medals: medals});
+
+        });
     });
 }

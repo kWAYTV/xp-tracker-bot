@@ -11,9 +11,14 @@
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "dotenv": "^16.3.1",
     "express": "^4.18.2",
+    "fs": "^0.0.1-security",
+    "globaloffensive": "^2.3.0",
     "mysql2": "^2.3.3",
+    "path": "^0.12.7",
     "request-promise": "^4.2.6",
+    "steam-user": "^4.28.8",
     "steamapi": "^2.4.2"
   }
 }

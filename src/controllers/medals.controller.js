@@ -1,7 +1,9 @@
 const fs = require('fs');
+const path = require('path');
 
 // Read medal ids file and create an object mapping ids to names
-const medalData = fs.readFileSync( "../medals/ids.txt", 'utf8');
+const medalDataPath = path.join(__dirname, '..', 'medals', 'ids.txt');
+const medalData = fs.readFileSync(medalDataPath, 'utf8');
 const medalIdsToNames = {};
 medalData.split('\n').forEach(line => {
     const [id, name] = line.split(';');
