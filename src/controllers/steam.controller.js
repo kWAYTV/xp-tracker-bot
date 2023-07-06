@@ -26,7 +26,7 @@ csgo.on("disconnectedFromGC", () => {
     console.log("GC stopped");
 });
 
-module.exports.request_player_profile = (steamID) => {
+module.exports.request_player_profile = async function(steamID) {
     csgo.requestPlayersProfile(steamID, (data, err) => {
 
         if (err) {
@@ -40,11 +40,7 @@ module.exports.request_player_profile = (steamID) => {
         // Map the ids to names and PNG file names
         let medals = medals_controller.get_medal_ids(medal_ids);
 
-        return {
-            success: true,
-            steamid64: steamid64,
-            medals: medals
-        };
+        return {success: true, steamid64: steamid64, medals: medals};
 
     });
 }

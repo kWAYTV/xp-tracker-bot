@@ -14,7 +14,7 @@ router.get('/getmedals', async function(req, res) {
         });
     }
 
-    console.log("Checking ID:", steamID/*, "Steam id:", id*/);
+    console.log("Checking ID:", steamID);
     let data = await steam_controller.request_player_profile(steamID);
     console.log(data)
 
