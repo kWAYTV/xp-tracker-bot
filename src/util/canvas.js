@@ -4,6 +4,7 @@ const { createCanvas, loadImage } = require('canvas');
 function wrapText(context, text, x, y, maxWidth, lineHeight) {
     const words = text.split(' ');
     let line = '';
+    let lines = 1;
 
     for(let n = 0; n < words.length; n++) {
         const testLine = line + words[n] + ' ';
@@ -13,29 +14,43 @@ function wrapText(context, text, x, y, maxWidth, lineHeight) {
             context.fillText(line, x, y);
             line = words[n] + ' ';
             y += lineHeight;
+            lines++;
         }
         else {
             line = testLine;
         }
     }
     context.fillText(line, x, y);
+    return lines;
 }
 
 module.exports.create = async function(medalData, queue_id) {
-    const padding = 20;
+    const padding = 15;
     const medalSize = 100;
     const medalsPerRow = 15;
-    const lineHeight = 15;
+    const lineHeight = 12;
     const maxWidth = medalSize;
-    const leftMargin = 15; // Add a left margin
+    const margin = 15; 
 
+    const actualMedalsPerRow = Math.min(medalData.length, medalsPerRow);
     const rows = Math.ceil(medalData.length / medalsPerRow);
-    const canvasWidth = medalsPerRow * (medalSize + padding) + leftMargin; // Increase canvas width by the size of the left margin
-    const canvasHeight = rows * (medalSize + padding * 2);
+    
+    const canvasWidth = actualMedalsPerRow * (medalSize + padding) - padding + 2 * margin;
 
-    const canvas = createCanvas(canvasWidth, canvasHeight);
+    const canvas = createCanvas(canvasWidth, 0);
     const ctx = canvas.getContext('2d');
     ctx.font = 'bold 11px Comic Sans MS';
+
+    let maxTextHeightPerRow = 0;
+    for (let i = 0; i < medalData.length; i++) {
+        const textHeight = wrapText(ctx, medalData[i].medal_name.trim(), 0, 0, maxWidth, lineHeight) * lineHeight;
+        if (i % actualMedalsPerRow === actualMedalsPerRow - 1) {
+            maxTextHeightPerRow = Math.max(maxTextHeightPerRow, textHeight);
+        }
+    }
+
+    const canvasHeight = rows * (medalSize + padding + maxTextHeightPerRow) - padding + 2 * margin;
+    canvas.height = canvasHeight;
 
     ctx.fillStyle = '#2B2D31';
     ctx.fillRect(0, 0, canvasWidth, canvasHeight);
@@ -43,12 +58,12 @@ module.exports.create = async function(medalData, queue_id) {
     Promise.all(medalData.map(medal => loadImage(`./src/medals/${medal.medal_id}.png`)))
         .then((images) => {
             images.forEach((img, i) => {
-                const x = (i % medalsPerRow) * (medalSize + padding) + leftMargin; // Increase x coordinate by the size of the left margin
-                const y = Math.floor(i / medalsPerRow) * (medalSize + padding * 2);
+                const x = margin + (i % actualMedalsPerRow) * (medalSize + padding);
+                const y = margin + Math.floor(i / actualMedalsPerRow) * (medalSize + padding + maxTextHeightPerRow);
 
                 ctx.drawImage(img, x, y, medalSize, medalSize);
-                ctx.fillStyle = '#ffffff'; // Set the font color to white
-                wrapText(ctx, medalData[i].medal_name.trim(), x, y + medalSize + padding, maxWidth, lineHeight); // Wrap text
+                ctx.fillStyle = '#ffffff';
+                wrapText(ctx, medalData[i].medal_name.trim(), x, y + medalSize + padding, maxWidth, lineHeight);
             });
 
             const out = fs.createWriteStream(`./src/medals/output/output_${queue_id}.png`);
