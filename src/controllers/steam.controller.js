@@ -1,7 +1,7 @@
-require('dotenv').config();
 const SteamUser = require('steam-user');
 const GlobalOffensive = require('globaloffensive');
 const medals_controller = require('../controllers/medals.controller.js');
+require('dotenv').config();
 
 let user = new SteamUser();
 let csgo = new GlobalOffensive(user);
@@ -26,7 +26,7 @@ csgo.on("disconnectedFromGC", () => {
     console.log("GC stopped");
 });
 
-module.exports.request_player_profile = async function(steamID) {
+module.exports.request_player_medals = async function(steamID) {
 
     steamID = steamID.replace(/\s/g, '');
 
