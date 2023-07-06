@@ -39,7 +39,7 @@ module.exports.create = async function(medalData, queue_id) {
 
     const canvas = createCanvas(canvasWidth, 0);
     const ctx = canvas.getContext('2d');
-    ctx.font = 'bold 11px Comic Sans MS';
+    ctx.font = 'bold 11px Arial';
 
     let maxTextHeightPerRow = 0;
     for (let i = 0; i < medalData.length; i++) {
