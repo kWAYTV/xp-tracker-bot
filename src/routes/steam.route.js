@@ -17,13 +17,17 @@ router.get('/getmedals', async function(req, res) {
 
     console.log("Requested. ID:", steamID, "Queue ID:", queue_id);
 
-    let data = await steam_controller.request_player_medals(steamID, queue_id);
-    
-    if (!data.success) {
-        return res.status(400).json(data);
-    }
+    let medal_data = await steam_controller.request_player_medals(steamID, queue_id);
+    let player_data = await steam_controller.request_player_data(steamID);
 
-    return res.status(200).json(data);
+    return res.status(200).json({
+        success: true,
+        steamID: steamID,
+        response: {
+            player_data: player_data,
+            medal_data: medal_data
+        }
+    });
 
 });
 
