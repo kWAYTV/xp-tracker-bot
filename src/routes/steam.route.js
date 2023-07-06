@@ -15,17 +15,12 @@ router.get('/getmedals', async function(req, res) {
     }
 
     let data = await steam_controller.request_player_medals(steamID);
-    console.log(data)
+    
+    if (!data.success) {
+        return res.status(400).json(data);
+    }
 
-    let medal_ids = data["medals"]["display_items_defidx"];
-
-    // Map the ids to names and PNG file names
-    let medals = medals_controller.get_medal_ids(medal_ids);
-
-    return res.status(200).json({
-        steamid64: steamID,
-        medals: medals,
-    });
+    return res.status(200).json(data);
 
 });
 

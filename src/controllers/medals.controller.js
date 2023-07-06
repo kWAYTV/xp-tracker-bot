@@ -10,7 +10,7 @@ medalData.split('\n').forEach(line => {
     medalIdsToNames[id] = name;
 });
 
-module.exports.get_medal_ids = function(medal_ids) {
+module.exports.get_medals = function(medal_ids) {
 
     // Map the ids to names and PNG file names
     let medals = medal_ids.map(id => ({
