@@ -27,6 +27,15 @@ csgo.on("disconnectedFromGC", () => {
 });
 
 module.exports.request_player_profile = async function(steamID) {
+
+    if (!csgo.haveGCSession) {
+        console.error("GC not started");
+        return {success: false, error: "GC not started"};
+    } else {
+        console.log("GC started, proceeding");
+    }
+
+    console.log("Checking ID:", steamID);
     csgo.requestPlayersProfile(steamID, (data, err) => {
 
         if (err) {
@@ -34,13 +43,12 @@ module.exports.request_player_profile = async function(steamID) {
             return {success: false, error: err};
         }
 
-        let steamid64 = data["account_id"] + 76561197960265728;
         let medal_ids = data["medals"]["display_items_defidx"];
 
         // Map the ids to names and PNG file names
         let medals = medals_controller.get_medal_ids(medal_ids);
 
-        return {success: true, steamid64: steamid64, medals: medals};
+        return {success: true, steamid64: steamID, medals: medals};
 
     });
 }

@@ -1,2 +1,2 @@
-# xp-tracker-bot
- Discord bot to track XP 
+# XP Tracker Bot
+Discord bot to track XP , medals and profile information in general.
