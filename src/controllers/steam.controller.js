@@ -28,17 +28,17 @@ csgo.on("disconnectedFromGC", () => {
 
 module.exports.request_player_profile = async function(steamID) {
 
+    steamID = steamID.replace(/\s/g, '');
+
     if (!csgo.haveGCSession) {
         console.error("GC not started");
         return {success: false, error: "GC not started"};
-    } else {
-        console.log("GC started, proceeding");
     }
 
     console.log("Checking ID:", steamID);
     csgo.requestPlayersProfile(steamID, (data, err) => {
 
-        if (err) {
+        if (err || data === undefined) {
             console.error("Failed to request player profile:", err);
             return {success: false, error: err};
         }
