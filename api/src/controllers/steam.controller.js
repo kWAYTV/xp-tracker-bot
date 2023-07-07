@@ -120,8 +120,6 @@ module.exports.request_player_medals = function (steamID, queue_id) {
                         },
                         medals: medals
                     };
-
-                    console.log("Medal data:", json);
                     resolve(json);
                 } else {
                     console.error("Failed to get medal data");

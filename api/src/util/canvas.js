@@ -43,7 +43,8 @@ module.exports.create = async function(medalData, queue_id) {
 
     let maxTextHeightPerRow = 0;
     for (let i = 0; i < medalData.length; i++) {
-        const textHeight = wrapText(ctx, medalData[i].medal_name.trim(), 0, 0, maxWidth, lineHeight) * lineHeight;
+        const medalName = medalData[i].medal_name ? medalData[i].medal_name.trim() : '';
+        const textHeight = wrapText(ctx, medalName, 0, 0, maxWidth, lineHeight) * lineHeight;
         if (i % actualMedalsPerRow === actualMedalsPerRow - 1) {
             maxTextHeightPerRow = Math.max(maxTextHeightPerRow, textHeight);
         }
@@ -55,21 +56,32 @@ module.exports.create = async function(medalData, queue_id) {
     ctx.fillStyle = '#2B2D31';
     ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
-    Promise.all(medalData.map(medal => loadImage(`./src/medals/${medal.medal_id}.png`)))
+    Promise.all(medalData.map(medal => {
+        if (medal.medal_id) {
+            return loadImage(`./src/medals/${medal.medal_id}.png`)
+        }
+        else {
+            console.error(`Medal with index ${medalData.indexOf(medal)} has no medal_id property`);
+            return null;
+        }
+    }))
         .then((images) => {
             images.forEach((img, i) => {
-                const x = margin + (i % actualMedalsPerRow) * (medalSize + padding);
-                const y = margin + Math.floor(i / actualMedalsPerRow) * (medalSize + padding + maxTextHeightPerRow);
+                if(img) {  // Checking if the image is not null
+                    const x = margin + (i % actualMedalsPerRow) * (medalSize + padding);
+                    const y = margin + Math.floor(i / actualMedalsPerRow) * (medalSize + padding + maxTextHeightPerRow);
 
-                ctx.drawImage(img, x, y, medalSize, medalSize);
-                ctx.fillStyle = '#ffffff';
-                wrapText(ctx, medalData[i].medal_name.trim(), x, y + medalSize + padding, maxWidth, lineHeight);
+                    ctx.drawImage(img, x, y, medalSize, medalSize);
+                    ctx.fillStyle = '#ffffff';
+                    const medalName = medalData[i].medal_name ? medalData[i].medal_name.trim() : '';
+                    wrapText(ctx, medalName, x, y + medalSize + padding, maxWidth, lineHeight);
+                }
             });
 
-            const out = fs.createWriteStream(`./src/medals/output/output_${queue_id}.png`);
+            const out = fs.createWriteStream(`./src/medals/output/${queue_id}.png`);
             const stream = canvas.createPNGStream();
             stream.pipe(out);
-            out.on('finish', () => console.log(`The PNG file output_${queue_id}.png was created.`));
+            out.on('finish', () => console.log(`The PNG file ${queue_id}.png was created.`));
         })
         .catch((err) => {
             console.error(err);

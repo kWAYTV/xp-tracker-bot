@@ -115,9 +115,6 @@ class Order(commands.Cog):
             embed.set_image(url=f"attachment://{image_file.filename}")
             embed.set_footer(text=f"CSGO Tracker • Requested by {username}", icon_url=self.config.csgo_tracker_logo)
             embed.timestamp = datetime.utcnow()
-        elif not faceit_success:
-            # If there was an error, send a message with the error
-            await interaction.followup.send(f"{self.config.loading_red_emoji_id} There was an error checking the faceit stats. Contact the developer if the profile has faceit profile and this is happening.", ephemeral=hidden)
         else:
             # If there was an error, send a message with the error
             await interaction.followup.send(f"{self.config.loading_red_emoji_id} There was an error checking the steam ID. Contact the developer if the id format is profile link or steamid64 (correct).", ephemeral=hidden)
