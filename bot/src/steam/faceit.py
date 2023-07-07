@@ -77,4 +77,4 @@ class Faceit:
         combined_stats_str = '\n'.join(combined_stats)
         code_block = f"```{combined_stats_str}```"
 
-        return code_block
+        return True, code_block

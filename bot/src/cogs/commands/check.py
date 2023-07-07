@@ -24,8 +24,8 @@ class Order(commands.Cog):
 
     # Spam bot command  
     @app_commands.command(name="check", description=f"Add some steam profile to the queue to be checked.")
-    async def order_command(self, interaction: discord.Interaction, id: str, faceit: bool = True, hide: bool = True):
-        await interaction.response.defer(ephemeral=hide)
+    async def order_command(self, interaction: discord.Interaction, id: str, hidden: bool = True):
+        await interaction.response.defer(ephemeral=hidden)
 
         # Clean the username
         username = await self.utils.clean_discord_username(f"{interaction.user.name}#{interaction.user.discriminator}")
@@ -36,10 +36,10 @@ class Order(commands.Cog):
             minutes, seconds = divmod(time_remaining, 60)
             await self.logger.discord_log(f"⏳ {username} tried to use the spam command but is in timeout for {int(minutes)} minutes and {int(seconds)} seconds.")
             self.logger.log("INFO", f"⏳ {username} tried to use the spam command but is in timeout for {int(minutes)} minutes and {int(seconds)} seconds.")
-            return await interaction.followup.send(f"{self.config.loading_red_emoji_id} You can only use this command every {self.config.user_timeout} seconds! Please wait {int(minutes)} minutes and {int(seconds)} seconds.", ephemeral=hide)
+            return await interaction.followup.send(f"{self.config.loading_red_emoji_id} You can only use this command every {self.config.user_timeout} seconds! Please wait {int(minutes)} minutes and {int(seconds)} seconds.", ephemeral=hidden)
 
         # Tell the user that the bot is working on their order and log it to console and logs channel
-        requested_message = await interaction.followup.send(f"{self.config.loading_green_emoji_id} Requested `{id}` to be checked.", ephemeral=hide)
+        requested_message = await interaction.followup.send(f"{self.config.loading_green_emoji_id} Requested `{id}` to be checked.", ephemeral=hidden)
         await self.logger.discord_log(f"⌛ Requested `{id}` to be checked. Requested by `{username}`.")
         self.logger.log("INFO", f"⌛ Requested `{id}` to be checked.. Requested by {username}")
 
@@ -121,14 +121,14 @@ class Order(commands.Cog):
             embed.timestamp = datetime.utcnow()
         elif not faceit_success:
             # If there was an error, send a message with the error
-            await interaction.followup.send(f"{self.config.loading_red_emoji_id} There was an error checking the faceit stats. Contact the developer if the profile has faceit profile and this is happening.", ephemeral=hide)
+            await interaction.followup.send(f"{self.config.loading_red_emoji_id} There was an error checking the faceit stats. Contact the developer if the profile has faceit profile and this is happening.", ephemeral=hidden)
         else:
             # If there was an error, send a message with the error
-            await interaction.followup.send(f"{self.config.loading_red_emoji_id} There was an error checking the steam ID. Contact the developer if the id format is profile link or steamid64 (correct).", ephemeral=hide)
+            await interaction.followup.send(f"{self.config.loading_red_emoji_id} There was an error checking the steam ID. Contact the developer if the id format is profile link or steamid64 (correct).", ephemeral=hidden)
 
         # Edit the message to send the embed and log it to console and logs channel
         await requested_message.edit(content=f"{self.config.green_tick_emoji_id} The check has been successfully completed.", embed=embed, attachments=[image_file])
-        #await interaction.followup.send(file=image_file, ephemeral=hide)
+        #await interaction.followup.send(file=image_file, ephemeral=hidden)
         await self.logger.discord_log(f"✅ Successfully checked `{id}`. Requested by `{username}`.")
         self.logger.log("INFO", f"✅ Successfully checked `{id}`. Requested by `{username}`.")
 
@@ -147,7 +147,7 @@ class Order(commands.Cog):
             if not adding:
                 await self.logger.discord_log(f"❌ The user {username} `already` in the timeout list.")
                 self.logger.log("INFO", f"❌ The user {username} already in the timeout list.")
-                return await interaction.followup.send(f"{self.config.loading_red_emoji_id} The user {username} `already` in the timeout list.", ephemeral=hide)
+                return await interaction.followup.send(f"{self.config.loading_red_emoji_id} The user {username} `already` in the timeout list.", ephemeral=hidden)
 
             
             # Log that the user has been added to the timeout list
