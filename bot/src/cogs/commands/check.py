@@ -7,6 +7,7 @@ from src.util.utils import Utils
 from src.util.logger import Logger
 from src.steam.faceit import Faceit
 from src.helper.config import Config
+from src.steam.checker import Checker
 from src.handler.medal_handler import MedalHandler
 from src.handler.queue_handler import QueueHandler
 from src.manager.timeout_manager import TimeoutManager
@@ -16,6 +17,7 @@ class Order(commands.Cog):
         self.bot = bot
         self.utils = Utils()
         self.config = Config()
+        self.checker = Checker()
         self.faceit = Faceit()
         self.logger = Logger(self.bot)
         self.queue_handler = QueueHandler()
@@ -24,6 +26,10 @@ class Order(commands.Cog):
 
     # Spam bot command  
     @app_commands.command(name="check", description=f"Add some steam profile to the queue to be checked.")
+    @app_commands.describe(
+        id="The steam id (profile link, custom id, steamid64) to be checked.",
+        hidden="If the command should be hidden or not."
+    )
     async def order_command(self, interaction: discord.Interaction, id: str, hidden: bool = True):
         await interaction.response.defer(ephemeral=hidden)
 
@@ -38,13 +44,19 @@ class Order(commands.Cog):
             self.logger.log("INFO", f"⏳ {username} tried to use the spam command but is in timeout for {int(minutes)} minutes and {int(seconds)} seconds.")
             return await interaction.followup.send(f"{self.config.loading_red_emoji_id} You can only use this command every {self.config.user_timeout} seconds! Please wait {int(minutes)} minutes and {int(seconds)} seconds.", ephemeral=hidden)
 
+        # Check if the api it's online
+        if not self.checker.is_api_online():
+            await self.logger.discord_log(f"⚠️ {username} tried to use the spam command but the API is offline.")
+            self.logger.log("INFO", f"⚠️ {username} tried to use the spam command but the API is offline.")
+            return await interaction.followup.send(f"{self.config.loading_red_emoji_id} The API is offline, please try again later.", ephemeral=hidden)
+        
         # Tell the user that the bot is working on their order and log it to console and logs channel
         requested_message = await interaction.followup.send(f"{self.config.loading_green_emoji_id} Requested `{id}` to be checked.", ephemeral=hidden)
         await self.logger.discord_log(f"⌛ Requested `{id}` to be checked. Requested by `{username}`.")
         self.logger.log("INFO", f"⌛ Requested `{id}` to be checked.. Requested by {username}")
 
         # Create an embed to send to the user
-        embed = discord.Embed(title=f"{self.config.loading_green_emoji_id} Successfully added!", description=f"Checking added to the queue.\nQueued steam ID: `{id}`.", color=0x00ff00)
+        embed = discord.Embed(title=f"{self.config.loading_green_emoji_id} Successfully added!", description=f"Checking added to the queue.\nID: `{id}`.", color=0x00ff00)
         embed.set_thumbnail(url=self.config.csgo_tracker_logo)
         embed.set_footer(text=f"CSGO Tracker • Requested by {username}")
         embed.timestamp = datetime.utcnow()
@@ -83,9 +95,13 @@ class Order(commands.Cog):
             # Get faceit stats
             faceit_success, faceit_stats_text = await self.faceit.get_combined_stats(steamid64)
 
+            # Get friend code
+            friend_code = self.checker.steam64_to_friend_code(steam64 = steamid64)
+
             # Get the medals image
             image_path = await self.medal_handler.get_image_path(f"{queue_id}")
-            image_file = File(image_path, filename="medals.png")
+            if image_path is not None:
+                image_file = File(image_path, filename="medals.png")
 
             # Build the embed with the results
             embed = discord.Embed(
@@ -98,8 +114,8 @@ class Order(commands.Cog):
             # Add the results to the embed
             embed.set_author(name=f"CSGO Tracker", icon_url=self.config.csgo_tracker_logo, url="https://kwayservices.top")
             embed.add_field(name=f"{self.config.arrow_blue_emoji_id} Steam Level", value=f"`{steam_level}`", inline=True)
-            embed.add_field(name=f"{self.config.arrow_pink_emoji_id} CSGO Level", value=f"`{csgo_level}`", inline=True)
-            embed.add_field(name=f"{self.config.arrow_purple_emoji_id} Lvl Percentage", value=f"`{level_percentage}`", inline=True)
+            embed.add_field(name=f"{self.config.arrow_pink_emoji_id} CSGO Level", value=f"`{csgo_level} ({level_percentage})`", inline=True)
+            embed.add_field(name=f"{self.config.arrow_purple_emoji_id} Friend Code", value=f"`{friend_code}`", inline=True)
             embed.add_field(name=f"{self.config.arrow_yellow_emoji_id} Remaining XP", value=f"`{remaining_xp}`", inline=True)
             if country_code is not None:
                 embed.add_field(name=f"{self.config.spinbot_emoji_id} Country Code", value=f"`{country_code}`", inline=True)
@@ -112,7 +128,8 @@ class Order(commands.Cog):
             embed.add_field(name=f"{self.config.arrow_green_emoji_id} Leader Commends", value=f"`{leader_commends}`", inline=True)
             embed.add_field(name=f"{self.config.arrow_red_emoji_id} Teacher Commends", value=f"`{teacher_commends}`", inline=True)
             embed.set_thumbnail(url=avatar)
-            embed.set_image(url=f"attachment://{image_file.filename}")
+            if image_path is not None:
+                embed.set_image(url=f"attachment://{image_file.filename}")
             embed.set_footer(text=f"CSGO Tracker • Requested by {username}", icon_url=self.config.csgo_tracker_logo)
             embed.timestamp = datetime.utcnow()
         else:
@@ -120,8 +137,10 @@ class Order(commands.Cog):
             await interaction.followup.send(f"{self.config.loading_red_emoji_id} There was an error checking the steam ID. Contact the developer if the id format is profile link or steamid64 (correct).", ephemeral=hidden)
 
         # Edit the message to send the embed and log it to console and logs channel
-        await requested_message.edit(content=f"{self.config.green_tick_emoji_id} The check has been successfully completed.", embed=embed, attachments=[image_file])
-        #await interaction.followup.send(file=image_file, ephemeral=hidden)
+        if image_path is not None: 
+            await requested_message.edit(content=f"{self.config.green_tick_emoji_id} The check has been successfully completed.", embed=embed, attachments=[image_file])
+        else:
+            await requested_message.edit(content=f"{self.config.green_tick_emoji_id} The check has been successfully completed.", embed=embed)
         await self.logger.discord_log(f"✅ Successfully checked `{id}`. Requested by `{username}`.")
         self.logger.log("INFO", f"✅ Successfully checked `{id}`. Requested by `{username}`.")
 

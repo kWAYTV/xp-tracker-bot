@@ -1,4 +1,5 @@
-import requests
+import requests, struct
+from Cryptodome.Hash import MD5
 from src.util.logger import Logger
 from src.helper.config import Config
 from concurrent.futures import ThreadPoolExecutor
@@ -8,6 +9,65 @@ class Checker():
     def __init__(self):
         self.logger = Logger()
         self.config = Config()
+
+    def is_api_online(self):
+        try:
+            response = requests.get("https://checker.kwayservices.top")
+            if response.status_code == 200:
+                return True
+            else:
+                return False
+        except:
+            return False
+
+    def friend_code_to_steam64(self, friend_code):
+        alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+        code = "AAAA" + friend_code.replace("-", "")
+
+        result = 0
+
+        for i in range(13):
+            index = alphabet.find(code[i])
+            if index == -1: return -1
+            result = result | (index << 5 * i)
+
+        result, = struct.unpack('<Q', struct.pack('>Q', result))
+        account_id = 0
+
+        for i in range(8):
+            result = result >> 1
+            id_nib = result & 0xF
+            result = result >> 4
+            account_id = (account_id << 4) | id_nib
+
+        return account_id + 76561197960265728
+
+    def steam64_to_friend_code(self, steam64):
+        alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+
+        h = b'CSGO' + struct.pack('>L', int(steam64) - 76561197960265728)
+        h, = struct.unpack('<L', MD5.new(h[::-1]).digest()[:4])
+        result = 0
+
+        for i in range(8):
+            id_nib = (int(steam64) >> (i * 4)) & 0xF
+            hash_nib = (h >> i) & 0x1
+            a = (result << 4) | id_nib
+
+            result = ((result >> 28) << 32) | a
+            result = ((result >> 31) << 32) | ((a << 1) | hash_nib)
+
+        result, = struct.unpack('<Q', struct.pack('>Q', result))
+        code = ''
+
+        for i in range(13):
+            if i in (4, 9):
+                code += '-'
+
+            code += alphabet[result & 31]
+            result = result >> 5
+
+        return code[5:]
 
     # Function to get player info
     def get_player_info(self, id: int, queue_id: str):

@@ -17,6 +17,10 @@ class Revoke(commands.Cog):
 
     # Revoke bot command  
     @app_commands.command(name="revoke", description="Revoke someone's timeout")
+    @app_commands.describe(
+        user="The user you want to revoke the timeout from.",
+        notify_user="If you want to notify the user that their timeout has been revoked."
+    )
     @app_commands.checks.has_permissions(administrator=True)
     async def revoke_command(self, interaction: discord.Interaction, user: discord.Member, notify_user: bool = True):
         await interaction.response.defer(ephemeral=True)

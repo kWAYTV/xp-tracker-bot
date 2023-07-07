@@ -1,3 +1,4 @@
+const fs = require('fs');
 const SteamUser = require('steam-user');
 const GlobalOffensive = require('globaloffensive');
 const medals_controller = require('../controllers/medals.controller.js');
@@ -16,12 +17,23 @@ function start_gc() {
     user.gamesPlayed([730]);
 }
 
+// Make a function to get a random proxy from /src/data/proxies.txt
+function get_random_proxy() {
+    let proxies = fs.readFileSync('./src/data/proxies.txt').toString().split("\n");
+    let random_proxy = proxies[Math.floor(Math.random() * proxies.length)];
+    console.log("Using proxy:", random_proxy)
+    return random_proxy;
+}
+
 module.exports.startCSGO = function() {
     return new Promise(resolve => {
         console.log("Logging into Steam");
         user.logOn({
             accountName: process.env.STEAM_ACCOUNT_NAME,
             password: process.env.STEAM_PASSWORD,
+            rememberPassword: true,
+            autoRelogin: true,
+            httpProxy: get_random_proxy(),
         });
         user.on('loggedOn', () => {
             console.log(`Logged into Steam (${user.steamID})`);
@@ -82,12 +94,11 @@ module.exports.request_player_medals = function (steamID, queue_id) {
                 return reject({ success: false, error: err });
             }
 
-            let medal_ids = data && data["medals"]["display_items_defidx"];
-            let cmd_friendly = data && data["commendation"]["cmd_friendly"];
-            let cmd_teaching = data && data["commendation"]["cmd_teaching"];
-            let cmd_leader = data && data["commendation"]["cmd_leader"];
+            let cmd_friendly = data && data["commendation"] && data["commendation"]["cmd_friendly"];
+            let cmd_teaching = data && data["commendation"] && data["commendation"]["cmd_teaching"];
+            let cmd_leader = data && data["commendation"] && data["commendation"]["cmd_leader"];
             let csgo_level = data && data["player_level"];
-            let current_xp = data && data["player_cur_xp"]
+            let current_xp = data && data["player_cur_xp"];
             let currentLevel = (current_xp - 327680000) % 5000;
             let currentLevelPercentage = (currentLevel / 5000) * 100;
             let remaining_xp = 5000 - currentLevel - 10;
@@ -103,28 +114,30 @@ module.exports.request_player_medals = function (steamID, queue_id) {
                     });
                 });
 
+                let medal_ids = data && data["medals"] && data["medals"]["display_items_defidx"];
+
+                let json = {
+                    steam_level: steam_level,
+                    csgo_level: csgo_level,
+                    level_percentage: `${currentLevelPercentage.toFixed(2)}%`,
+                    remaining_xp: remaining_xp,
+                    commends: {
+                        friendly: cmd_friendly,
+                        teacher: cmd_teaching,
+                        leader: cmd_leader
+                    }
+                };
+                
                 if (medal_ids) {
                     // Map the ids to names and PNG file names
                     let medals = medals_controller.get_medals(medal_ids);
                     canvas_creator.create(medals, queue_id);
-
-                    let json = {
-                        steam_level: steam_level,
-                        csgo_level: csgo_level,
-                        level_percentage: `${currentLevelPercentage.toFixed(2)}%`,
-                        remaining_xp: remaining_xp,
-                        commends: {
-                            friendly: cmd_friendly,
-                            teacher: cmd_teaching,
-                            leader: cmd_leader
-                        },
-                        medals: medals
-                    };
-                    resolve(json);
+                    json.medals = medals; // add medals to the json object
                 } else {
                     console.error("Failed to get medal data");
-                    reject({ success: false, error: "Failed to get medal data" });
                 }
+                
+                resolve(json);         
             } catch (err) {
                 console.error("Failed to request player steam level:", err);
                 reject({ success: false, error: err });

@@ -9,7 +9,7 @@ class MedalHandler:
     async def get_image_path(self, image_name: str):
         path = os.path.join(self.base_dir, f"{image_name}.png")
         if not os.path.isfile(path):
-            self.logger.log("ERROR", f"Image {image_name}.png does not exist at the expected location.")
+            self.logger.log("WARNING", f"Image {image_name}.png does not exist at the expected location.")
             return None
         self.logger.log("INFO", f"Getting image path for {image_name}.png")
         return path
@@ -25,7 +25,7 @@ class MedalHandler:
             self.logger.log("INFO", f"Successfully deleted image {image_name}.png")
             return True
         else:
-            self.logger.log("ERROR", f"Image {image_name}.png does not exist, so it could not be deleted.")
+            self.logger.log("WARNING", f"Image {image_name}.png does not exist, so it could not be deleted.")
             return False
         
     # Function to delete all images in the output folder
@@ -36,6 +36,6 @@ class MedalHandler:
                 if os.path.isfile(file_path) or os.path.islink(file_path):
                     os.unlink(file_path)
             except Exception as e:
-                self.logger.log("ERROR", f"Failed to delete {file_path}. Reason: {e}")
+                self.logger.log("WARNING", f"Failed to delete {file_path}. Reason: {e}")
         self.logger.log("WARNING", f"Successfully deleted all the possible images in {self.base_dir}")
         return True
