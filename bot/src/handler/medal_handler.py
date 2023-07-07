@@ -27,3 +27,15 @@ class MedalHandler:
         else:
             self.logger.log("ERROR", f"Image {image_name}.png does not exist, so it could not be deleted.")
             return False
+        
+    # Function to delete all images in the output folder
+    async def delete_all_images(self):
+        for filename in os.listdir(self.base_dir):
+            file_path = os.path.join(self.base_dir, filename)
+            try:
+                if os.path.isfile(file_path) or os.path.islink(file_path):
+                    os.unlink(file_path)
+            except Exception as e:
+                self.logger.log("ERROR", f"Failed to delete {file_path}. Reason: {e}")
+        self.logger.log("WARNING", f"Successfully deleted all the possible images in {self.base_dir}")
+        return True

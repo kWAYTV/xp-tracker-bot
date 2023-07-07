@@ -83,10 +83,6 @@ class Order(commands.Cog):
             # Get faceit stats
             faceit_success, faceit_stats_text = await self.faceit.get_combined_stats(steamid64)
 
-            # Replace 1 number from the steamid64 with a *
-            steamid64 = str(steamid64)  # Convert to string.
-            embed_steamid64 = steamid64[:-2] + '*' + steamid64[-1]  # Replace second-to-last character.
-
             # Get the medals image
             image_path = await self.medal_handler.get_image_path(f"{queue_id}")
             image_file = File(image_path, filename="medals.png")
@@ -94,7 +90,7 @@ class Order(commands.Cog):
             # Build the embed with the results
             embed = discord.Embed(
                 title=f"{self.config.green_tick_emoji_id} {nickname}",
-                description=f"\n*`{embed_steamid64}`*",  # Include the results in the description
+                description=f"\n*{steamid64}*",  # Include the results in the description
                 color=0xbfa5d1,
                 url=profile_url
             )
