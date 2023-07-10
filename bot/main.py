@@ -4,6 +4,7 @@ from colorama import Fore
 from discord.ext import commands
 from src.util.logger import Logger
 from src.helper.config import Config
+from src.manager.xp_manager import XpManager
 from src.manager.file_manager import FileManager
 from src.manager.timeout_manager import TimeoutManager
 
@@ -12,6 +13,7 @@ class Bot(commands.Bot):
     def __init__(self) -> None:
         self.logger = Logger()
         self.file_manager = FileManager()
+        self.xp_manager = XpManager()
         self.timeout_manager = TimeoutManager()
         super().__init__(command_prefix=Config().bot_prefix, help_command=None, intents=discord.Intents.all())
 

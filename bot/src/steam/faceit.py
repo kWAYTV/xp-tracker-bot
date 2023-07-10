@@ -15,15 +15,30 @@ class Faceit:
     async def get_pyfaceit_stats(self, nickname: str):
         faceit_instance = pyfaceit.Pyfaceit(nickname)
         stats = faceit_instance.player_stats()
+
+        # If the player has no stats, return False
+        if not stats.get('lifetime', None):
+            return False
+
+        lifetime_stats = stats.get('lifetime', {})
+        kd_ratio = lifetime_stats.get('K/D Ratio', 'N/A')
+        avrg_headshots = lifetime_stats.get('Average Headshots %', 'N/A')
+        win_rate = lifetime_stats.get('Win Rate %', 'N/A')
+        longest_win_streak = lifetime_stats.get('Longest Win Streak', 'N/A')
+        current_win_streak = lifetime_stats.get('Current Win Streak', 'N/A')
+        avrg_kd_ratio = lifetime_stats.get('Average K/D Ratio', 'N/A')
+        total_matches = lifetime_stats.get('Matches', 'N/A')
+        total_wins = lifetime_stats.get('Wins', 'N/A')
+
         stats_data = {
-            'kd_ratio': stats['lifetime']['K/D Ratio'],
-            'avrg_headshots': stats['lifetime']['Average Headshots %'],
-            'win_rate': stats['lifetime']['Win Rate %'],
-            'longest_win_streak': stats['lifetime']['Longest Win Streak'],
-            'current_win_streak': stats['lifetime']['Current Win Streak'],
-            'avrg_kd_ratio': stats['lifetime']['Average K/D Ratio'],
-            'total_matches': stats['lifetime']['Matches'],
-            'total_wins': stats['lifetime']['Wins'],
+            'kd_ratio': kd_ratio,
+            'avrg_headshots': avrg_headshots,
+            'win_rate': win_rate,
+            'longest_win_streak': longest_win_streak,
+            'current_win_streak': current_win_streak,
+            'avrg_kd_ratio': avrg_kd_ratio,
+            'total_matches': total_matches,
+            'total_wins': total_wins
         }
         return stats_data
 
@@ -44,6 +59,7 @@ class Faceit:
                 'faceit_level': stats['games']['csgo']['skill_level'],
                 'faceit_elo': stats['games']['csgo']['faceit_elo'],
                 'membership_type': stats['memberships'][0],
+                'faceit_url': stats['faceit_url'],
             }
             
             return True, stats_data
@@ -55,8 +71,10 @@ class Faceit:
     async def get_combined_stats(self, steamid64: str):
         success, faceit_stats = await self.get_faceit_stats(steamid64)
         if not success:
-            return False, faceit_stats
+            return False, faceit_stats, None
         pyfaceit_stats = await self.get_pyfaceit_stats(faceit_stats['nickname'])
+        if not pyfaceit_stats:
+            return False, "No stats found for this player.", None
 
         combined_stats = [
             f"Nickname: {faceit_stats['nickname']}",
@@ -77,4 +95,4 @@ class Faceit:
         combined_stats_str = '\n'.join(combined_stats)
         code_block = f"```{combined_stats_str}```"
 
-        return True, code_block
+        return True, code_block, faceit_stats['faceit_url'].replace('{lang}', 'en')

@@ -146,3 +146,45 @@ module.exports.request_player_medals = function (steamID, queue_id) {
     })
     .catch(err => ({ success: false, error: err }));
 }
+
+// Make the same function as above but only returning steamID, csgo_level and current xp    
+module.exports.request_player_level = function (steamID) {
+    return new Promise(async (resolve, reject) => {
+        steamID = steamID.replace(/\s/g, '');
+
+        if (!csgo.haveGCSession) {
+            console.error("GC not started");
+            return reject({ success: false, error: "GC not started" });
+        }
+
+        console.log("Checking ID:", steamID);
+        csgo.requestPlayersProfile(steamID, async (data, err) => {
+            if (err) {
+                console.error("Failed to request player profile:", err);
+                return reject({ success: false, error: err });
+            }
+
+            let csgo_level = data && data["player_level"];
+            let current_xp = data && data["player_cur_xp"];
+            let currentLevel = (current_xp - 327680000) % 5000;
+            let currentLevelPercentage = (currentLevel / 5000) * 100;
+            let remaining_xp = 5000 - currentLevel - 10;
+
+            try {
+
+                let json = {
+                    current_level: csgo_level,
+                    current_xp: current_xp,
+                    level_percentage: `${currentLevelPercentage.toFixed(2)}%`,
+                    remaining_xp: remaining_xp,
+                };
+                
+                resolve(json);         
+            } catch (err) {
+                console.error("Failed to request player steam level:", err);
+                reject({ success: false, error: err });
+            }
+        });
+    })
+    .catch(err => ({ success: false, error: err }));
+}

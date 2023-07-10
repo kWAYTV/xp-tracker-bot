@@ -5,12 +5,25 @@ from src.helper.config import Config
 defaultConfig = """
 # CSGO Tacker Discord Bot
 
+# Discord
 # Discord bot prefix
-bot_prefix: .
+bot_prefix: 
 # Discord bot token
 discord_token: 
+# Discord logs channel id
+logs_channel: 
+# Discord queue embed switch
+queue_embed_switch: 
+# Discord queue embed channel id
+queue_embed_channel_id: 
+# Discord queue embed message id
+queue_embed_message_id: 
+# Discord user timeout after order (in seconds)
+user_timeout: 300
+
+# Emoji IDs
 # Discord green tick emoji id
-green_tick_emoji_id: 
+green_tick_emoji_id:
 # Discord green loading emoji id
 loading_green_emoji_id: 
 # Discord red loading emoji id
@@ -32,25 +45,27 @@ arrow_red_emoji_id:
 # Arrow white emoji id
 arrow_white_emoji_id: 
 # Spinbot emoji id
-spinbot_emoji_id: 
+spinbot_emoji_id:  
 # Shield emoji id
 shield_emoji_id: 
 # Discord emoji id
 discord_emoji_id: 
 # Faceit emoji id
 faceit_emoji_id: 
-# Discord logs channel id
-logs_channel: 
-# Discord queue embed switch
-queue_embed_switch: true
-# Discord queue embed channel id
-queue_embed_channel_id: 
-# Discord queue embed message id
-queue_embed_message_id: 
-# Discord user timeout after order (in seconds)
-user_timeout: 300
+
+# Faceit
 # Faceit api key
 faceit_api_key: 
+
+# XP Tracker
+# XP Tracker interval (in seconds) (recommended: 452)
+checker_interval: 452
+# Discord channel id where the bot will send the xp tracker messages
+discord_tracker_channel_id: 
+# Steam credentials
+steam_username: 
+steam_password: 
+steam_api_key: 
 """
 
 class FileManager():
@@ -72,3 +87,7 @@ class FileManager():
         # If the folder "/src/database" doesn't exist, create it.
         if not os.path.exists("src/database"):
             os.makedirs("src/database")
+
+        # If the folder "/src/creds" doesn't exist, create it.
+        if not os.path.exists("src/creds"):
+            os.makedirs("src/creds")

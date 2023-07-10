@@ -33,15 +33,14 @@ class UpdateQueueLoop(commands.Cog):
 
         # Set the embed description
         if length > 0:
-            description = "`User`/`Amount`/`Product ID`\n"
+            description = "`User`/`ID`\n"
             for index, order in enumerate(data):
-                amount = order['amount']
-                product_id = order['product_id']
+                steamid64 = order['steamid64']
                 requested_by = order['requested_by']
                 emoji = self.config.loading_green_emoji_id if index == 0 else self.config.loading_red_emoji_id
-                description = description + f" > • {emoji} <@{requested_by}> • `{amount}`/`{product_id}`\n"
+                description = description + f" > • {emoji} <@{requested_by}> • `{steamid64}`\n"
         else:
-            description = "There's no orders in queue."
+            description = f"{self.config.discord_emoji_id} There's no orders in queue."
 
         # Create the embed
         embed = discord.Embed(title="📝 CSGO Queue.", description=description, color=0xb34760)

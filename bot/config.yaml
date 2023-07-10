@@ -1,0 +1,63 @@
+# CSGO Tacker Discord Bot
+
+# Discord
+# Discord bot prefix
+bot_prefix: .
+# Discord bot token
+discord_token: MTEyNjMxMDI5NzQ4NTk4Mzc5NQ.GKZzTS.FtDnMf81YjMJgz1haYTNmI-uUYvVo3m42o2b-c
+# Discord logs channel id
+logs_channel: 1123612451569680404
+# Discord queue embed switch
+queue_embed_switch: true
+# Discord queue embed channel id
+queue_embed_channel_id: 1126620519341506580
+# Discord queue embed message id
+queue_embed_message_id: 1127523215187656724
+# Discord user timeout after order (in seconds)
+user_timeout: 300
+
+# Emoji IDs
+# Discord green tick emoji id
+green_tick_emoji_id: <a:tick:1126462952250294296>
+# Discord green loading emoji id
+loading_green_emoji_id: <a:green:1126463259252375557>
+# Discord red loading emoji id
+loading_red_emoji_id: <a:red:1126463250373017670>
+# Discord panel logo emoji:
+panel_logo_emoji_id: <:fsmpanel:1126464875313508445>
+# Arrow blue emoji id
+arrow_blue_emoji_id: <a:heartarrow_blue:1126653696533598289> 
+# Arrow purple emoji id
+arrow_purple_emoji_id: <a:heartarrow_purple:1126653698773356566>
+# Arrow pink emoji id
+arrow_pink_emoji_id: <a:heartarrow_pink:1126653695375966208> 
+# Arrow yellow emoji id
+arrow_yellow_emoji_id: <a:heartarrow_yellow:1126653685905244211>
+# Arrow green emoji id
+arrow_green_emoji_id: <a:heartarrow_green:1126653694025400440>
+# Arrow red emoji id
+arrow_red_emoji_id: <a:heartarrow_red:1126653690967765123>
+# Arrow white emoji id
+arrow_white_emoji_id: <a:heartarrow_white:1126656069855354911>
+# Spinbot emoji id
+spinbot_emoji_id: <a:spin:1084192108140826715> 
+# Shield emoji id
+shield_emoji_id: <a:shield:1126463618771333221>
+# Discord emoji id
+discord_emoji_id: <a:discord:1126463624156815410>
+# Faceit emoji id
+faceit_emoji_id: <:faceit:1126721520761307176>
+
+# XP Tracker
+# XP Tracker interval (in seconds) (recommended: 452)
+checker_interval: 30
+# Discord channel id where the bot will send the xp tracker messages
+discord_tracker_channel_id: 1127492829753651261
+# Steam credentials
+steam_username: kaczykfilip
+steam_password: oReU5Dse
+steam_api_key: 8334A878D74AB98114C527DC163FD77D
+
+# Faceit
+# Faceit api key
+faceit_api_key: 82d31310-7331-474a-9880-9b979d588c6d

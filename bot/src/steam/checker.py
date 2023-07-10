@@ -69,23 +69,31 @@ class Checker():
 
         return code[5:]
 
+    # Function to get player steamid64, name and avatar
+    def get_persona(self, id: str):
+
+        sid_url = f"https://checker.kwayservices.top/sid/get?id={id}"
+
+        sid_response = requests.get(sid_url)
+        sid_response_json = sid_response.json()
+
+        if not sid_response_json["success"]:
+            return False, sid_response_json, None, None
+
+        steamid64 = sid_response_json["data"].get("id", "None")
+        nickname = sid_response_json["data"].get("name", "None")
+        avatar = sid_response_json["data"].get("avatar", None)
+
+        return True, steamid64, nickname, avatar
+
     # Function to get player info
     def get_player_info(self, id: int, queue_id: str):
 
         try:
-            sid_url = f"https://checker.kwayservices.top/sid/get?id={id}"
 
-            sid_response = requests.get(sid_url)
-            sid_response_json = sid_response.json()
+            success, steamid64, nickname, avatar = self.get_persona(id)
 
-            if not sid_response_json["success"]:
-                return False, sid_response_json
-
-            steamid64 = sid_response_json["data"].get("id", "None")
-            nickname = sid_response_json["data"].get("name", "None")
-            avatar = sid_response_json["data"].get("avatar", "None")
-
-            info_url = f"https://checker.kwayservices.top/steam/getmedals?id={steamid64}&queue_id={queue_id}"
+            info_url = f"https://checker.kwayservices.top/steam/medals?id={steamid64}&queue_id={queue_id}"
 
             info_response = requests.get(info_url)
             info_response_json = info_response.json()

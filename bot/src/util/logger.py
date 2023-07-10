@@ -1,11 +1,9 @@
-import discord, sys
+import discord
 from os import system, name
 from datetime import datetime
 from discord.ext import commands
 from colorama import Fore, Style
 from src.helper.config import Config
-
-
 
 class Logger:
 

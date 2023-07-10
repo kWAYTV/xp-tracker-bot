@@ -10,13 +10,19 @@ class Config:
         with open("config.yaml", "r") as file:
             self.config = self.yaml.load(file)
 
+        # Bot logo
         self.csgo_tracker_logo = "https://i.imgur.com/SdE6a8S.png"
-        self.queue_embed_switch = self.config["queue_embed_switch"]
-        self.queue_embed_channel_id = int(self.config["queue_embed_channel_id"])
-        self.queue_embed_message_id = int(self.config["queue_embed_message_id"])
+
+        # Discord
         self.discord_token = self.config["discord_token"]
         self.bot_prefix = self.config["bot_prefix"]
         self.logs_channel = int(self.config["logs_channel"])
+        self.user_timeout = int(self.config["user_timeout"])
+        self.queue_embed_switch = self.config["queue_embed_switch"]
+        self.queue_embed_channel_id = int(self.config["queue_embed_channel_id"])
+        self.queue_embed_message_id = int(self.config["queue_embed_message_id"])
+
+        # Emoji IDs
         self.loading_green_emoji_id = self.config["loading_green_emoji_id"]
         self.loading_red_emoji_id = self.config["loading_red_emoji_id"]
         self.green_tick_emoji_id = self.config["green_tick_emoji_id"]
@@ -32,8 +38,16 @@ class Config:
         self.shield_emoji_id = self.config["shield_emoji_id"]
         self.discord_emoji_id = self.config["discord_emoji_id"]
         self.faceit_emoji_id = self.config["faceit_emoji_id"]
-        self.user_timeout = int(self.config["user_timeout"])
+
+        # Faceit
         self.faceit_api_key = self.config["faceit_api_key"]
+
+        # XP Tracker
+        self.checker_interval = int(self.config["checker_interval"])
+        self.discord_tracker_channel_id = int(self.config["discord_tracker_channel_id"])
+        self.steam_username = self.config["steam_username"]
+        self.steam_password = self.config["steam_password"]
+        self.steam_api_key = self.config["steam_api_key"]
 
     def set_queue_embed_channel_id(self, channel_id: int):
         self.config["queue_embed_channel_id"] = channel_id

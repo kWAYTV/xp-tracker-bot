@@ -2,6 +2,7 @@ import logging
 from discord.ext import commands
 from src.util.logger import Logger
 from pystyle import Colors, Colorate, Center
+from src.handler.xp_handler import XpHandler
 
 logo = """
  ██████╗███████╗ ██████╗  ██████╗     ██████╗  ██████╗ ████████╗
@@ -17,6 +18,7 @@ class OnReady(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.logger = Logger(self.bot)
+        self.xp_handler = XpHandler()
 
     def print_logo(self):
         self.logger.clear()

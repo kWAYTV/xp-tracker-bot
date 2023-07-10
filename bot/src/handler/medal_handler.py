@@ -6,6 +6,7 @@ class MedalHandler:
         self.logger = Logger()
         self.base_dir = "/root/csgo-checker-api/src/medals/output"
 
+    # Function to get the medals image path
     async def get_image_path(self, image_name: str):
         path = os.path.join(self.base_dir, f"{image_name}.png")
         if not os.path.isfile(path):
@@ -14,6 +15,7 @@ class MedalHandler:
         self.logger.log("INFO", f"Getting image path for {image_name}.png")
         return path
     
+    # Function to delete a medal image
     async def delete_image(self, image_name: str):
         path = os.path.join(self.base_dir, f"{image_name}.png")
         if os.path.isfile(path):
