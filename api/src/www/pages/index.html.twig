@@ -1,9 +1,12 @@
 {% extends './base.html.twig' %}
 
 {% block header %}
-    <link rel="stylesheet" href="/public/css/homepage.css">
+    <link rel="stylesheet" href="../public/css/homepage.css">
+    <title>{{title}}</title>
 {% endblock %}
 
-{% block content %}
-    <p>Test</p>
+{% block content %}    
+    <div class="container">
+        <h1 class="logo">kWAY - CSGO Tracking API</h1>
+    </div>
 {% endblock %}
