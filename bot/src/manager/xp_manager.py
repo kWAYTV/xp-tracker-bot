@@ -72,3 +72,13 @@ class XpManager:
         if row is not None:
             return True
         return False
+    
+    # Function to change users guild    
+    def change_guild(self, steam_id, guild_id):
+        try:
+            with self.connection:
+                self.connection.execute("UPDATE tracking SET guild_id = ? WHERE steam_id = ?", (guild_id, steam_id))
+            return True
+        except sqlite3.Error as e:
+            self.logger.log("ERROR", f"Error updating user: {e}")
+            return False

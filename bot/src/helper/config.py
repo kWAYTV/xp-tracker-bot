@@ -24,6 +24,7 @@ class Config:
 
         # Emoji IDs
         self.loading_green_emoji_id = self.config["loading_green_emoji_id"]
+        self.red_cross_emoji_id = self.config["red_cross_emoji_id"]
         self.loading_red_emoji_id = self.config["loading_red_emoji_id"]
         self.green_tick_emoji_id = self.config["green_tick_emoji_id"]
         self.panel_logo_emoji_id = self.config["panel_logo_emoji_id"]

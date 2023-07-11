@@ -24,6 +24,8 @@ user_timeout: 300
 # Emoji IDs
 # Discord green tick emoji id
 green_tick_emoji_id:
+# Discord red cross emoji id
+red_cross_emoji_id: <a:redcross:1128149345749971014>
 # Discord green loading emoji id
 loading_green_emoji_id: 
 # Discord red loading emoji id

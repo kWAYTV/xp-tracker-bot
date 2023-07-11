@@ -24,7 +24,7 @@ class RemoveUser(commands.Cog):
         hidden="If the command should be hidden from other users or not."
     )
     @commands.has_permissions(administrator=True)
-    async def add_track_user(self, interaction: discord.Interaction, id: str, hidden: bool = True):
+    async def remove_track_user(self, interaction: discord.Interaction, id: str, hidden: bool = True):
         await interaction.response.defer(ephemeral=hidden)
 
         # Clean the username
@@ -69,8 +69,8 @@ class RemoveUser(commands.Cog):
         await added_message.edit(content=f"{self.config.green_tick_emoji_id} Request completed.", embed=embed)
         await self.logger.discord_log(f"✅ {username} removed the id `{id}` from the tracker database.")
 
-    @add_track_user.error
-    async def add_track_user_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
+    @remove_track_user.error
+    async def remove_track_user_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
         if isinstance(error, app_commands.errors.MissingPermissions):
             await interaction.response.send_message("❌ You don't have permissions to use this command.", ephemeral=True)
         else:

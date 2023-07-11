@@ -54,4 +54,4 @@ class SetXpChannel(commands.Cog):
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(SetXpChannel(bot))
-    return Logger().log("INFO", "Add user command loaded!")
+    return Logger().log("INFO", "Set tracker channel command loaded!")
