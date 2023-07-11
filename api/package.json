@@ -29,6 +29,7 @@
     "fast-xml-parser": "^4.2.5",
     "globaloffensive": "^2.3.0",
     "gts": "^3.1.1",
+    "helmet": "^7.0.0",
     "morgan": "^1.10.0",
     "steam-user": "^4.28.9",
     "typescript": "^5.1.6",
