@@ -22,6 +22,7 @@
     "@types/morgan": "^1.9.4",
     "@types/node": "^20.4.1",
     "@types/steam-user": "^4.26.4",
+    "@types/twig": "^1.12.9",
     "@types/winston": "^2.4.4",
     "axios": "^1.4.0",
     "canvas": "^2.11.2",
