@@ -1,3 +1,54 @@
+@font-face {
+    font-family: 'Montserrat', sans-serif;
+    src: url('../fonts/Montserrat.ttf');
+}
+
 body {
-    color: red;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #2b2b2b;
+    overflow: hidden;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.container {
+    text-align: center;
+}
+
+.container h1.logo {
+    color: #fff;
+    font-size: 48px;
+    margin-bottom: 20px;
+}
+
+
+.container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(-45deg, #600060, #800080, #600060);
+    background-size: 200% 200%;
+    animation: backgroundAnimation 8s ease-in-out infinite;
+    z-index: -1;
+}
+
+@keyframes backgroundAnimation {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
 }
