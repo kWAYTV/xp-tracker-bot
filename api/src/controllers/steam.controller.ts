@@ -10,8 +10,14 @@ import 'dotenv/config';
 const user = new SteamUser();
 const csgo = new GlobalOffensive(user);
 
+// CS:GO Events
+// !TODO - Move to 'events' folder
 csgo.on('disconnectedFromGC', () => {
-  logger.info('GC stopped');
+  logger.info('CS:GO GameCoordinator stopped!');
+});
+
+csgo.on('connectedToGC', () => {
+  logger.info('Connected to CS:GO GameCoordinator!');
 });
 
 /**
@@ -25,9 +31,6 @@ csgo.on('disconnectedFromGC', () => {
  * startGC();
  */
 function startGC(): void {
-  csgo.on('connectedToGC', () => {
-    logger.info('GC started');
-  });
   logger.info('Starting CS:GO');
   user.gamesPlayed([730]);
 }
