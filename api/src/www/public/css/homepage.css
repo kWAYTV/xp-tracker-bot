@@ -15,6 +15,11 @@ body {
     font-family: 'Montserrat', sans-serif;
 }
 
+.logo {
+    color: #fff;
+    font-size: 24px;
+}
+
 .container {
     text-align: center;
 }
