@@ -7,6 +7,4 @@ const fallbackPort: number = Number.parseInt(
   `${process.env.SERVER_PORT_FALLBACK}`
 );
 
-startCSGO().then(() => {
-  new WebServer(defaultPort || fallbackPort);
-});
+startCSGO().then(() => new WebServer(defaultPort || fallbackPort));
