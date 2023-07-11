@@ -2,12 +2,17 @@ import registerMiddlewares from './handlers/middlewares.handler';
 import registerRoutes from './handlers/routes.handler';
 import express, {Application} from 'express';
 import logger from './utils/logger.util';
+import {join} from 'node:path';
 
 export default class WebServer {
   private webServer: Application;
 
   public constructor(port: number) {
     this.webServer = express();
+
+    // Set the default view engine and views path
+    this.webServer.set('views', join(__dirname, './pages/'));
+    this.webServer.set('view engine', 'twig');
 
     this.registerMiddlewares();
     this.registerRoutes();
