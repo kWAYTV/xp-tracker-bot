@@ -11,7 +11,7 @@ export default class WebServer {
     this.webServer = express();
 
     // Set the default view engine and views path
-    this.webServer.set('views', join(__dirname, './pages/'));
+    this.webServer.set('views', join(__dirname, './www/pages/'));
     this.webServer.set('view engine', 'twig');
 
     this.registerMiddlewares();
