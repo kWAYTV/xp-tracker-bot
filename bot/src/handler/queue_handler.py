@@ -55,8 +55,9 @@ class QueueHandler:
             self.logger.log("ERROR", f"Error processing queue: {e}")
 
     # Function to get the results of a check
-    def get_check_results(self, steamid64):
-        return self.check_results.get(steamid64)  # If the check was not done yet, return (None, None)
+    async def get_check_results(self, steamid64):
+        results = self.check_results.get(steamid64)
+        return results  # If the check was not done yet, return (None, None)
 
     # Checks if the queue is empty and if it's not empty nor being processed, processes it
     async def force_check_start(self):

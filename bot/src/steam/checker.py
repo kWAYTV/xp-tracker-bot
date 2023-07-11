@@ -72,7 +72,7 @@ class Checker():
     # Function to get player steamid64, name and avatar
     def get_persona(self, id: str):
 
-        sid_url = f"https://checker.kwayservices.top/sid/get?id={id}"
+        sid_url = f"https://checker.kwayservices.top/steam/get/steamid?id={id}"
 
         sid_response = requests.get(sid_url)
         sid_response_json = sid_response.json()
@@ -80,8 +80,8 @@ class Checker():
         if not sid_response_json["success"]:
             return False, sid_response_json, None, None
 
-        steamid64 = sid_response_json["data"].get("id", "None")
-        nickname = sid_response_json["data"].get("name", "None")
+        steamid64 = sid_response_json["data"].get("id", None)
+        nickname = sid_response_json["data"].get("nickname", None)
         avatar = sid_response_json["data"].get("avatar", None)
 
         return True, steamid64, nickname, avatar
@@ -93,7 +93,7 @@ class Checker():
 
             success, steamid64, nickname, avatar = self.get_persona(id)
 
-            info_url = f"https://checker.kwayservices.top/steam/medals?id={steamid64}&queue_id={queue_id}"
+            info_url = f"https://checker.kwayservices.top/steam/get/medals?id={steamid64}&queueid={queue_id}"
 
             info_response = requests.get(info_url)
             info_response_json = info_response.json()
@@ -101,19 +101,20 @@ class Checker():
             if not info_response_json["success"]:
                 return False, info_response_json
 
-            profile_url = info_response_json["response"]["player_data"].get("profile_url", "None")
-            country_code = info_response_json["response"]["player_data"].get("country_code", "None")
+            player_data = info_response_json["data"]["playerData"].get("data", {})
+            profile_url = player_data.get("profile_url", None)
+            country_code = player_data.get("country_code", None)
 
-            medal_data = info_response_json["response"].get("medal_data", {})
-            steam_level = medal_data.get("steam_level", "None")
-            csgo_level = medal_data.get("csgo_level", "None")
-            level_percentage = medal_data.get("level_percentage", "None")
-            remaining_xp = medal_data.get("remaining_xp", "None")
+            medal_data = info_response_json["data"]["medalData"].get("data", {})
+            steam_level = medal_data.get("steam_level", None)
+            csgo_level = medal_data.get("csgo_level", None)
+            level_percentage = medal_data.get("level_percentage", None)
+            remaining_xp = medal_data.get("remaining_xp", None)
             commends = medal_data.get("commends", {})
-            friendly_commends = commends.get("friendly", "None")
-            leader_commends = commends.get("leader", "None")
-            teacher_commends = commends.get("teacher", "None")
-            medals = medal_data.get("medals", "None")
+            friendly_commends = commends.get("friendly", None)
+            leader_commends = commends.get("leader", None)
+            teacher_commends = commends.get("teacher", None)
+            medals = medal_data.get("medals", None)
 
             json = {
                 "steamid64": steamid64,

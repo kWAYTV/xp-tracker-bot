@@ -24,18 +24,18 @@ class XpHandler:
         if not success:
             return False, f"The id `{id}` is not a valid ID.", None, None
 
-        url = f"https://checker.kwayservices.top/steam/level?id={steamid64}"
+        url = f"https://checker.kwayservices.top/steam/get/levels?id={steamid64}"
 
         response = requests.get(url)
-        data = response.json()
+        json = response.json()
 
-        if not data["success"]:
+        if not json["success"]:
             return False, f"The id `{id}` is not a valid ID."
         
-        current_level = data["response"]["current_level"]
-        current_xp = data["response"]["current_xp"]
-        remaining_xp = data["response"]["remaining_xp"]
-        percentage = data["response"]["level_percentage"]
+        current_level = json["data"]["data"]["current_level"]
+        current_xp = json["data"]["data"]["current_xp"]
+        percentage = json["data"]["data"]["level_percentage"]
+        remaining_xp = json["data"]["data"]["remaining_xp"]
 
         return current_level, current_xp, remaining_xp, percentage
 

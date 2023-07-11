@@ -69,11 +69,14 @@ class Check(commands.Cog):
         # Generate a random queue ID
         queue_id = f"KWS{secrets.token_hex(6)}"
 
-        self.queue_handler.push_order({'steamid64': id, 'queue_id': queue_id,'requested_by': int(interaction.user.id)})
+        # Get user info
+        success, steamid64, name, avatar = self.checker.get_persona(id)
+
+        self.queue_handler.push_order({'steamid64': steamid64, 'queue_id': queue_id,'requested_by': int(interaction.user.id)})
         await self.queue_handler.force_check_start()
 
         # Get the results of the check
-        success, result = self.queue_handler.get_check_results(id)
+        success, result = await self.queue_handler.get_check_results(steamid64)
         image_path = None
 
         # Check if the check was successful
