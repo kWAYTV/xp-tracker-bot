@@ -30,7 +30,6 @@ body {
     margin-bottom: 20px;
 }
 
-
 .container::before {
     content: '';
     position: absolute;
@@ -38,7 +37,7 @@ body {
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(-45deg, #600060, #800080, #600060);
+    background: linear-gradient(-45deg, #222222, #333333, #222222);
     background-size: 200% 200%;
     animation: backgroundAnimation 8s ease-in-out infinite;
     z-index: -1;
