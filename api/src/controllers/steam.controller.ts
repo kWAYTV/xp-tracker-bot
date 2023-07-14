@@ -1,3 +1,5 @@
+import registerSteamUserEvents from '../handlers/steamuserevent.handler';
+import registerCsgoEvents from '../handlers/csgoevent.handler';
 import {getRandomProxy} from '../utils/proxy.util';
 import getMedals from '../helpers/medals.helper';
 import GlobalOffensive from 'globaloffensive';
@@ -10,15 +12,8 @@ import 'dotenv/config';
 const user = new SteamUser();
 const csgo = new GlobalOffensive(user);
 
-// CS:GO Events
-// !TODO - Move to 'events' folder
-csgo.on('disconnectedFromGC', () => {
-  logger.info('CS:GO GameCoordinator stopped!');
-});
-
-csgo.on('connectedToGC', () => {
-  logger.info('Connected to CS:GO GameCoordinator!');
-});
+registerSteamUserEvents(user);
+registerCsgoEvents(csgo);
 
 /**
  * Starts the CS:GO game coordinator (GC) and initiates the connection.
@@ -30,9 +25,9 @@ csgo.on('connectedToGC', () => {
  * // Example usage:
  * startGC();
  */
-function startGC(): void {
+export function startGC(userInstance: SteamUser): void {
   logger.info('Starting CS:GO');
-  user.gamesPlayed([730]);
+  userInstance.gamesPlayed([730]);
 }
 
 /**
@@ -62,11 +57,7 @@ export function startCSGO(): Promise<void> {
       rememberPassword: true,
       autoRelogin: true,
     });
-    user.on('loggedOn', () => {
-      logger.info(`Logged into Steam (${user.steamID})`);
-      startGC();
-      resolve();
-    });
+    resolve();
   });
 }
 
