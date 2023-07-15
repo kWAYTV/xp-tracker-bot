@@ -1,3 +1,4 @@
+import authUA from '../middlewares/non/useragent.middleware';
 import {
   requestPlayerMedals,
   requestPlayerLevel,
@@ -10,6 +11,7 @@ import logger from '../utils/logger.util';
 export default function (serverInstance: Application) {
   serverInstance.get(
     '/steam/get/steamid',
+    authUA,
     async (req: Request, res: Response) => {
       const idToResolve = req.query.id?.toString();
 
@@ -30,6 +32,7 @@ export default function (serverInstance: Application) {
 
   serverInstance.get(
     '/steam/get/medals',
+    authUA,
     async (req: Request, res: Response) => {
       const idToResolve = req.query.id?.toString();
       const queueId = req.query.queueid?.toString();
@@ -61,6 +64,7 @@ export default function (serverInstance: Application) {
 
   serverInstance.get(
     '/steam/get/levels',
+    authUA,
     async (req: Request, res: Response) => {
       const idToResolve = req.query.id?.toString();
 

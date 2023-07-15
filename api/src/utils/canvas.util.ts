@@ -6,6 +6,11 @@ import fs from 'fs';
 const medalsPath = join(__dirname, '../data/medals/');
 const medalsOutputPath = join(__dirname, '../data/medals/output/');
 
+// Check if 'output' folder exists, if not create it
+if (!fs.existsSync(medalsOutputPath)) {
+  fs.mkdirSync(medalsOutputPath);
+}
+
 /**
  * Wraps the provided text within a specified width on a canvas using the given context.
  * The wrapped text is rendered starting from the provided coordinates (x, y).

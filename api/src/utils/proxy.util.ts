@@ -16,7 +16,7 @@ const proxiesFilePath = join(__dirname, '../data/proxies.txt');
  * const randomProxy = getRandomProxy();
  * // randomProxy: 'http://proxy.example.com:8080'
  */
-export function getRandomProxy() {
+export function getRandomProxy(): string {
   const proxies = readFileSync(proxiesFilePath).toString();
   const splittedProxies = proxies.split('\n');
 
