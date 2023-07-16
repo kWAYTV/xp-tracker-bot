@@ -8,6 +8,7 @@ from src.util.logger import Logger
 from src.steam.faceit import Faceit
 from src.helper.config import Config
 from src.steam.checker import Checker
+from src.helper.datetime import DateTime
 from src.handler.medal_handler import MedalHandler
 from src.handler.queue_handler import QueueHandler
 from src.manager.timeout_manager import TimeoutManager
@@ -23,6 +24,7 @@ class Check(commands.Cog):
         self.queue_handler = QueueHandler()
         self.medal_handler = MedalHandler()
         self.timeout_manager = TimeoutManager()
+        self.datetime_helper = DateTime()
 
     # Check bot command  
     @app_commands.command(name="check", description=f"Add some steam profile to the queue to be checked.")
@@ -59,7 +61,7 @@ class Check(commands.Cog):
         embed = discord.Embed(title=f"{self.config.green_tick_emoji_id} Successfully added!", description=f"Checking added to the queue.\nID: `{id}`.", color=0x00ff00)
         embed.set_thumbnail(url=self.config.csgo_tracker_logo)
         embed.set_footer(text=f"CSGO Tracker • Requested by {username}")
-        embed.timestamp = datetime.utcnow()
+        embed.timestamp = self.datetime_helper.get_current_timestamp()
 
         # Edit the message to send the embed and log it to console and logs channel
         await requested_message.edit(content=f"{self.config.green_tick_emoji_id} The order has been added to the queue.", embed=embed)
@@ -116,7 +118,7 @@ class Check(commands.Cog):
             )
 
             # Add the results to the embed
-            embed.set_author(name=f"CSGO Tracker", icon_url=self.config.csgo_tracker_logo, url="https://kwayservices.top")
+            embed.set_author(name=f"Tracker", icon_url=self.config.csgo_tracker_logo, url="https://kwayservices.top")
             embed.add_field(name=f"{self.config.arrow_blue_emoji_id} Steam Level", value=f"`{steam_level}`", inline=True)
             embed.add_field(name=f"{self.config.arrow_pink_emoji_id} CSGO Level", value=f"`{csgo_level} ({level_percentage})`", inline=True)
             embed.add_field(name=f"{self.config.arrow_yellow_emoji_id} Remaining XP", value=f"`{remaining_xp}`", inline=True)
@@ -141,7 +143,7 @@ class Check(commands.Cog):
                 embed.set_image(url=f"attachment://{image_file.filename}")
 
             embed.set_footer(text=f"CSGO Tracker • Requested by {username}", icon_url=self.config.csgo_tracker_logo)
-            embed.timestamp = datetime.utcnow()
+            embed.timestamp = self.datetime_helper.get_current_timestamp()
         else:
             # If there was an error, send a message with the error
             await interaction.followup.send(f"{self.config.loading_red_emoji_id} There was an error checking the steam ID. Contact the developer if the id format is profile link or steamid64 (correct).", ephemeral=hidden)
@@ -168,7 +170,7 @@ class Check(commands.Cog):
             # Check if the user is already in the timeout list
             if not adding:
                 await self.logger.discord_log(f"❌ The user {username} is `already` in the timeout list.")
-                self.logger.log("INFO", f"❌ The user {username} is already in the timeout list.")
+                self.logger.log("INFO", f"{self.config.red_cross_emoji_id} The user {username} is already in the timeout list.")
                 return await interaction.followup.send(f"{self.config.loading_red_emoji_id} The user {username} `already` in the timeout list.", ephemeral=hidden)
 
             # Log that the user has been added to the timeout list
@@ -178,9 +180,9 @@ class Check(commands.Cog):
     @check_command.error
     async def check_command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
         if isinstance(error, app_commands.errors.MissingPermissions):
-            return await interaction.response.send_message("❌ You don't have permissions to use this command.", ephemeral=True)
+            return await interaction.response.send_message("{self.config.red_cross_emoji_id} You don't have permissions to use this command.", ephemeral=True)
         else:
-            return await interaction.response.send_message(f"❌ Error: {error}", ephemeral=True)
+            return await interaction.response.send_message(f"{self.config.red_cross_emoji_id} Error: {error}", ephemeral=True)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Check(bot))

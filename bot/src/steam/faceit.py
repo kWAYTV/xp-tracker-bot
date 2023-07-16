@@ -9,7 +9,8 @@ class Faceit:
         self.session = requests.Session()
         self.session.headers.update({
             'accept': 'application/json',
-            'Authorization': f'Bearer {self.config.faceit_api_key}'
+            'Authorization': f'Bearer {self.config.faceit_api_key}',
+            'User-Agent': "kWS-Auth"
         })
 
     async def get_pyfaceit_stats(self, nickname: str):

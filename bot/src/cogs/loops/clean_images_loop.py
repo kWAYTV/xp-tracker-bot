@@ -13,7 +13,7 @@ class CleanImagesLoop(commands.Cog):
         self.clean_images.start()
 
     # Clean the images folder every 10 minutes
-    @tasks.loop(seconds=600)
+    @tasks.loop(minutes=10)
     async def clean_images(self):
         await self.medal_handler.delete_all_images()
 

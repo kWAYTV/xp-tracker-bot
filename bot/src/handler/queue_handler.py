@@ -1,14 +1,21 @@
-import asyncio
+import asyncio, discord
 from queue import Queue
+from datetime import datetime
+from discord.ext import commands
 from src.util.logger import Logger
+from src.helper.config import Config
 from src.steam.checker import Checker
+from src.helper.datetime import DateTime
 from concurrent.futures import ThreadPoolExecutor
 
 class QueueHandler:
-    def __init__(self):
+    def __init__(self, bot: commands.Bot = None):
+        self.bot = bot
         self.queue = Queue()
         self.logger = Logger()
+        self.config = Config()
         self.checker = Checker()
+        self.datetime_helper = DateTime()
         self.proccessing = False
         self.check_results = {}
 
@@ -67,3 +74,36 @@ class QueueHandler:
         except Exception as e:
             self.proccessing = False
             self.logger.log("ERROR", f"Error force-checking the queue: {e}")
+
+    async def update_queue_embed(self):
+        if not self.config.queue_embed_switch: return
+
+        # Fetch the message and channel
+        try:
+            queue_channel = self.bot.get_channel(Config().queue_embed_channel_id)
+            queue_message = await queue_channel.fetch_message(Config().queue_embed_message_id)
+        except Exception as e:
+            self.logger.log("ERROR", f"Failed to fetch queue embed message, use the /queue_embed command and wait for the queue to update. Error: {e}")
+            return
+
+        # Get the queue data and length
+        data = self.get_queue_data()
+        length = self.get_queue_length()
+
+        # Set the embed description
+        if length > 0:
+            description = "`User`/`ID`\n"
+            for index, order in enumerate(data, start=1):
+                steamid64, requested_by = order['steamid64'], order['requested_by']
+                emoji = self.config.loading_green_emoji_id if index == 1 else self.config.loading_red_emoji_id
+                description = description + f" > • {emoji} <@{requested_by}> • `{steamid64}`\n"
+        else:
+            description = f"{self.config.discord_emoji_id} There's no orders in queue."
+
+        # Create the embed
+        embed = discord.Embed(title="📝 CSGO Queue.", description=description, color=0xb34760)
+        embed.set_footer(text=f"Total: {length} • Last updated: {self.datetime_helper.get_current_timestamp().strftime('%H:%M:%S')}", icon_url=self.config.csgo_tracker_logo)
+        embed.set_thumbnail(url=self.config.csgo_tracker_logo)
+
+        # Edit the message
+        await queue_message.edit(embed=embed)

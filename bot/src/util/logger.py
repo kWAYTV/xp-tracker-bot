@@ -4,6 +4,7 @@ from datetime import datetime
 from discord.ext import commands
 from colorama import Fore, Style
 from src.helper.config import Config
+from src.helper.datetime import DateTime
 
 class Logger:
 
@@ -22,6 +23,7 @@ class Logger:
             "RATELIMIT": Fore.YELLOW,
         }
         self.bot = bot
+        self.datetime_helper = DateTime()
 
     # Clear console function
     def clear(self):
@@ -33,7 +35,7 @@ class Logger:
         embed = discord.Embed(title="CSGO Tracker", description=description)
         embed.set_thumbnail(url=self.config.csgo_tracker_logo)
         embed.set_footer(text=f"CSGO Tracker • discord.gg/kws", icon_url=self.config.csgo_tracker_logo)
-        embed.timestamp = datetime.utcnow()
+        embed.timestamp = self.datetime_helper.get_current_timestamp()
         await channel.send(embed=embed)
 
     # Function to log messages to the console

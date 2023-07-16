@@ -22,7 +22,7 @@ class SetXpChannel(commands.Cog):
         channel="The channel you want the xp tracker messages to be sent to in this guild.",
         hidden="If the command should be hidden from other users or not."
     )
-    @commands.has_permissions(administrator=True)
+    @app_commands.checks.has_permissions(administrator=True)
     async def set_tracker_channel(self, interaction: discord.Interaction, channel: discord.TextChannel, hidden: bool = True):
         await interaction.response.defer(ephemeral=hidden)
 
@@ -48,7 +48,7 @@ class SetXpChannel(commands.Cog):
     @set_tracker_channel.error
     async def set_tracker_channel_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
         if isinstance(error, app_commands.errors.MissingPermissions):
-            return await interaction.response.send_message("❌ You don't have permissions to use this command.", ephemeral=True)
+            return await interaction.response.send_message("{self.config.red_cross_emoji_id} You don't have permissions to use this command.", ephemeral=True)
         else:
             return await interaction.response.send_message(f"Error: {error}", ephemeral=True)
 

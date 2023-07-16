@@ -69,3 +69,14 @@ class GuildManager:
             return int(result[0])  # result is a tuple, we need the first element
         else:
             return self.config.discord_tracker_channel_id
+        
+    def clean_guilds(self):
+        bot_guild_ids = [guild.id for guild in self.bot.guilds]
+        cursor = self.connection.cursor()
+        cursor.execute('''
+            SELECT guild_id FROM tracking
+        ''')
+        db_guild_ids = [row[0] for row in cursor.fetchall()]
+        for db_guild_id in db_guild_ids:
+            if db_guild_id not in bot_guild_ids:
+                self.remove_guild(db_guild_id)

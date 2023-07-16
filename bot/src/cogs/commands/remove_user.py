@@ -6,6 +6,7 @@ from src.util.utils import Utils
 from src.util.logger import Logger
 from src.helper.config import Config
 from src.steam.checker import Checker
+from src.helper.datetime import DateTime
 from src.manager.xp_manager import XpManager
 from src.helper.trackeduser_class import TrackedUser
 
@@ -16,6 +17,7 @@ class RemoveUser(commands.Cog):
         self.config = Config()
         self.database = XpManager()
         self.checker = Checker()
+        self.datetime_helper = DateTime()
 
     # Remove user command  
     @app_commands.command(name="remove_user", description="Remove an user from the xp tracker database.")
@@ -23,7 +25,7 @@ class RemoveUser(commands.Cog):
         id="The steamid64/vanity/profile url of the user you want to stop to track.",
         hidden="If the command should be hidden from other users or not."
     )
-    @commands.has_permissions(administrator=True)
+    @app_commands.checks.has_permissions(administrator=True)
     async def remove_track_user(self, interaction: discord.Interaction, id: str, hidden: bool = True):
         await interaction.response.defer(ephemeral=hidden)
 
@@ -59,12 +61,12 @@ class RemoveUser(commands.Cog):
 
         embed = discord.Embed(title=f"{self.config.green_tick_emoji_id} Successfully removed `{nickname}`", url=f"https://steamcommunity.com/profiles/{steamid64}", color=0xba7272)
 
-        embed.set_author(name=f"CSGO Tracker", icon_url=self.config.csgo_tracker_logo, url="https://kwayservices.top")
+        embed.set_author(name=f"Tracker", icon_url=self.config.csgo_tracker_logo, url="https://kwayservices.top")
         embed.set_thumbnail(url=avatar)
         embed.add_field(name="SteamID64", value=f"`{steamid64}`", inline=True)
 
         embed.set_footer(text=f"CSGO Tracker • Requested by {username}", icon_url=self.config.csgo_tracker_logo)
-        embed.timestamp = datetime.utcnow()
+        embed.timestamp = self.datetime_helper.get_current_timestamp()
 
         await added_message.edit(content=f"{self.config.green_tick_emoji_id} Request completed.", embed=embed)
         await self.logger.discord_log(f"✅ {username} removed the id `{id}` from the tracker database.")
@@ -72,7 +74,7 @@ class RemoveUser(commands.Cog):
     @remove_track_user.error
     async def remove_track_user_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
         if isinstance(error, app_commands.errors.MissingPermissions):
-            await interaction.response.send_message("❌ You don't have permissions to use this command.", ephemeral=True)
+            await interaction.response.send_message("{self.config.red_cross_emoji_id} You don't have permissions to use this command.", ephemeral=True)
         else:
             await interaction.response.send_message(f"Error: {error}", ephemeral=True)
 

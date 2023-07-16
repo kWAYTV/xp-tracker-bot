@@ -17,10 +17,15 @@ class Config:
         self.discord_token = self.config["discord_token"]
         self.bot_prefix = self.config["bot_prefix"]
         self.logs_channel = int(self.config["logs_channel"])
+        self.dev_guild_id = int(self.config["dev_guild_id"])
         self.user_timeout = int(self.config["user_timeout"])
         self.queue_embed_switch = self.config["queue_embed_switch"]
         self.queue_embed_channel_id = int(self.config["queue_embed_channel_id"])
         self.queue_embed_message_id = int(self.config["queue_embed_message_id"])
+        self.leaderboard_embed_switch = self.config["leaderboard_embed_switch"]
+        self.leaderboard_embed_channel_id = int(self.config["leaderboard_embed_channel_id"])
+        self.leaderboard_embed_message_id = int(self.config["leaderboard_embed_message_id"])
+        self.update_embeds_delay = int(self.config["update_embeds_delay"])
 
         # Emoji IDs
         self.loading_green_emoji_id = self.config["loading_green_emoji_id"]
@@ -50,12 +55,26 @@ class Config:
         self.steam_password = self.config["steam_password"]
         self.steam_api_key = self.config["steam_api_key"]
 
+    # Function to set queue embed channel ID on the config file
     def set_queue_embed_channel_id(self, channel_id: int):
         self.config["queue_embed_channel_id"] = channel_id
         with open("config.yaml", "w") as file:
             self.yaml.dump(self.config, file)
 
+    # Function to set queue embed message ID on the config file
     def set_queue_embed_message_id(self, message_id: int):
         self.config["queue_embed_message_id"] = message_id
+        with open("config.yaml", "w") as file:
+            self.yaml.dump(self.config, file)
+
+    # Function to set leaderboard embed channel ID on the config file
+    def set_leaderboard_embed_channel_id(self, channel_id: int):
+        self.config["leaderboard_embed_channel_id"] = channel_id
+        with open("config.yaml", "w") as file:
+            self.yaml.dump(self.config, file)
+
+    # Function to set leaderboard embed message ID on the config file
+    def set_leaderboard_embed_message_id(self, message_id: int):
+        self.config["leaderboard_embed_message_id"] = message_id
         with open("config.yaml", "w") as file:
             self.yaml.dump(self.config, file)

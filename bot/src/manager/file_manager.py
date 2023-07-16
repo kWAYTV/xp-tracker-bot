@@ -12,20 +12,30 @@ bot_prefix:
 discord_token: 
 # Discord logs channel id
 logs_channel: 
+# Discord development guild id
+dev_guild_id: 
 # Discord queue embed switch
 queue_embed_switch: 
 # Discord queue embed channel id
 queue_embed_channel_id: 
 # Discord queue embed message id
 queue_embed_message_id: 
+# Discord leaderboard embed switch
+leaderboard_embed_switch: 
+# Discord leaderboard embed channel id
+leaderboard_embed_channel_id: 
+# Discord leaderboard embed message id
+leaderboard_embed_message_id: 
 # Discord user timeout after order (in seconds)
 user_timeout: 300
+# Discord update embeds delay (in seconds)
+update_embeds_delay: 
 
 # Emoji IDs
 # Discord green tick emoji id
 green_tick_emoji_id:
 # Discord red cross emoji id
-red_cross_emoji_id: <a:redcross:1128149345749971014>
+red_cross_emoji_id: 
 # Discord green loading emoji id
 loading_green_emoji_id: 
 # Discord red loading emoji id
@@ -89,7 +99,3 @@ class FileManager():
         # If the folder "/src/database" doesn't exist, create it.
         if not os.path.exists("src/database"):
             os.makedirs("src/database")
-
-        # If the folder "/src/creds" doesn't exist, create it.
-        if not os.path.exists("src/creds"):
-            os.makedirs("src/creds")

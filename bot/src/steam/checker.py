@@ -9,10 +9,12 @@ class Checker():
     def __init__(self):
         self.logger = Logger()
         self.config = Config()
+        self.session = requests.Session()
+        self.session.headers.update({"User-Agent": "kWS-Auth"})
 
     def is_api_online(self):
         try:
-            response = requests.get("https://checker.kwayservices.top")
+            response = self.session.get("https://checker.kwayservices.top")
             if response.status_code == 200:
                 return True
             else:
@@ -74,7 +76,7 @@ class Checker():
 
         sid_url = f"https://checker.kwayservices.top/steam/get/steamid?id={id}"
 
-        sid_response = requests.get(sid_url)
+        sid_response = self.session.get(sid_url)
         sid_response_json = sid_response.json()
 
         if not sid_response_json["success"]:
@@ -95,7 +97,7 @@ class Checker():
 
             info_url = f"https://checker.kwayservices.top/steam/get/medals?id={steamid64}&queueid={queue_id}"
 
-            info_response = requests.get(info_url)
+            info_response = self.session.get(info_url)
             info_response_json = info_response.json()
 
             if not info_response_json["success"]:

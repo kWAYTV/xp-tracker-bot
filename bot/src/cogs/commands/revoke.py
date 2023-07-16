@@ -5,6 +5,7 @@ from discord import app_commands
 from src.util.utils import Utils
 from src.util.logger import Logger
 from src.helper.config import Config
+from src.helper.datetime import DateTime
 from src.manager.timeout_manager import TimeoutManager
 
 class Revoke(commands.Cog):
@@ -14,6 +15,7 @@ class Revoke(commands.Cog):
         self.logger = Logger(self.bot)
         self.utils = Utils()
         self.timeout_manager = TimeoutManager()
+        self.datetime_helper = DateTime()
 
     # Revoke bot command  
     @app_commands.command(name="revoke", description="Revoke someone's timeout")
@@ -37,13 +39,13 @@ class Revoke(commands.Cog):
         # If revoke is False, the user doesn't have a timeout
         if not revoke:
             await self.logger.discord_log(f"❌ {request_username} tried to revoke user ID: `{user.id}`'s timeout, but they don't have one.")
-            self.logger.log("INFO", f"❌ {request_username} tried to revoke user ID: {user.id}'s timeout, but they don't have one.")
+            self.logger.log("INFO", f"{self.config.red_cross_emoji_id} {request_username} tried to revoke user ID: {user.id}'s timeout, but they don't have one.")
             return await requested_message.edit(content=f"{self.config.loading_red_emoji_id} The user doesn't have a timeout.")
 
         # Create an embed and send it to the user.
         embed = discord.Embed(title=f"{self.config.green_tick_emoji_id} Timeout revoked", description=f"User ID: `{user.id}` has been revoked by {interaction.user.mention}.", color=0x00ff00)
         embed.set_footer(text=f"CSGO Tracker • Revoked by {request_username}", icon_url=self.config.csgo_tracker_logo)
-        embed.timestamp = datetime.utcnow()
+        embed.timestamp = self.datetime_helper.get_current_timestamp()
 
         # Dm the user that their timeout has been revoked
         if notify_user:
@@ -59,7 +61,7 @@ class Revoke(commands.Cog):
     @revoke_command.error
     async def revoke_command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
         if isinstance(error, app_commands.errors.MissingPermissions):
-            await interaction.response.send_message("❌ You don't have permissions to use this command.", ephemeral=True)
+            await interaction.response.send_message("{self.config.red_cross_emoji_id} You don't have permissions to use this command.", ephemeral=True)
         else:
             await interaction.response.send_message(f"Error: {error}", ephemeral=True)
 
