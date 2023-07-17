@@ -1,12 +1,12 @@
 import registerSteamUserEvents from '../handlers/steamuserevent.handler';
 import {EAuthTokenPlatformType, LoginSession} from 'steam-session';
 import registerCsgoEvents from '../handlers/csgoevent.handler';
-import {insert, select} from './database.controller';
+import {insert, select, remove} from './database.controller';
+import {decodeJWT, isExpired} from '../helpers/jwt.helper';
 import {asyncReadLine} from '../utils/console.util';
 import {getRandomProxy} from '../utils/proxy.util';
 import {SteamData, SteamJWT} from '../types/steam';
 import getMedals from '../helpers/medals.helper';
-import {decodeJWT} from '../helpers/jwt.helper';
 import GlobalOffensive from 'globaloffensive';
 import {create} from '../utils/canvas.util';
 import logger from '../utils/logger.util';
@@ -98,7 +98,8 @@ export async function startCSGO(): Promise<void> {
         insert(insertData)
           .then(() => {
             logger.info(`Refresh token for steamid ${steamId64} saved to db!`);
-            logger.info('Please restart the script!');
+            logger.info('Restarting the login process in 3 seconds...');
+            setTimeout(() => startCSGO(), 3000);
           })
           .catch(error => {
             logger.error(
@@ -112,7 +113,27 @@ export async function startCSGO(): Promise<void> {
           `User '${username}' has a refresh token saved! Using it to session login!`
         );
         const refreshToken = userData?.refreshToken;
-        user.setOption('httpProxy', proxy);
+
+        // Check if the refreshToken is expired
+        logger.info('Checking if token is still valid...');
+        if (isExpired(decodeJWT(refreshToken).exp)) {
+          remove({username: username})
+            .then(() => {
+              logger.info(
+                `Refresh token for user '${username}' is expired! Restarting login process...`
+              );
+              startCSGO();
+            })
+            .catch(error => {
+              logger.error(
+                `Error while deleting db record for '${username}'! ${error}`
+              );
+            });
+        }
+
+        // Token is not expired, so we continue with login
+        logger.info('Token is still valid! Proceeding with login process!');
+        // user.setOption('httpProxy', proxy);
         user.logOn({
           refreshToken: refreshToken,
         });
