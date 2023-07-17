@@ -83,3 +83,46 @@ export async function select(
     });
   });
 }
+
+/**
+ * Removes records from the database based on the provided filter object.
+ *
+ * @description This function removes records from the database that match the provided `data` filter object
+ * using the `db.remove` method. It returns a Promise that resolves to the number of removed records if successful,
+ * or `null` if there's an error during the deletion process.
+ *
+ * @param {Record<string, any>} data - The filter object used to match records in the database for deletion.
+ * @returns {Promise<number | null>} A Promise that resolves to the number of removed records if successful, or `null` if there's an error.
+ *
+ * @example
+ * // Example usage:
+ * const filterObject: Record<string, any> = {
+ *   steamId64: '76561198859916296',
+ * };
+ *
+ * remove(filterObject)
+ *   .then((numberOfRemovedRecords) => {
+ *     if (numberOfRemovedRecords !== null) {
+ *       logger.info(`${numberOfRemovedRecords} record(s) removed successfully.`);
+ *     } else {
+ *       logger.info('No records found matching the filter.');
+ *     }
+ *   })
+ *   .catch((error) => {
+ *     logger.error(`Error removing records: ${error}`);
+ *   });
+ */
+export async function remove(
+  data: Record<string, any>
+): Promise<number | null> {
+  return new Promise((resolve, reject) => {
+    db.remove(data, {}, (error, n) => {
+      if (error) {
+        logger.error(`Error while deleting record for ${JSON.stringify(data)}`);
+        reject(error);
+      } else {
+        resolve(n || null);
+      }
+    });
+  });
+}
