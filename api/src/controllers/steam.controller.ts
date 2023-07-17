@@ -53,95 +53,81 @@ export function startGC(userInstance: SteamUser): void {
 export async function startCSGO(): Promise<void> {
   const username = process.env.STEAM_USERNAME!;
   const password = process.env.STEAM_PASSWORD!;
-  const proxy = getRandomProxy();
+  const proxy = getRandomProxy(); // Implement the 'getRandomProxy' function
 
-  // Check if the user has a saved refresh token set
   try {
     const userData = await select({username: username});
+
     if (!userData) {
       logger.info(`No saved refresh token found for user '${username}'!`);
       logger.info(`Using proxy: ${proxy}`);
 
-      const loginSession = new LoginSession(
-        EAuthTokenPlatformType.SteamClient,
-        {
-          // Disabled proxy for now because it crashed everytime.. need to fix it
-          //httpProxy: proxy,
+      const loginSession = new LoginSession(EAuthTokenPlatformType.SteamClient);
+
+      try {
+        const loginResponse = await loginSession.startWithCredentials({
+          accountName: username,
+          password: password,
+        });
+
+        if (loginResponse.actionRequired) {
+          const mobileToken = await asyncReadLine('Twofactor Auth Code: ');
+          await loginSession.submitSteamGuardCode(mobileToken);
         }
-      );
 
-      // Start session login with credentials
-      const loginResponse = await loginSession.startWithCredentials({
-        accountName: username,
-        password: password,
-      });
+        loginSession.on('authenticated', async () => {
+          const refreshToken = loginSession.refreshToken;
+          const steamId64 = loginSession.steamID.getSteamID64();
+          const decodedToken: SteamJWT = decodeJWT(refreshToken);
 
-      // Check if additional actions are required
-      if (loginResponse.actionRequired) {
-        const mobileToken = await asyncReadLine('Twofactor Auth Code: ');
-        await loginSession.submitSteamGuardCode(mobileToken);
-      }
+          const insertData: SteamData = {
+            username: username,
+            refreshToken: refreshToken,
+            tokenExpiration: decodedToken.exp,
+          };
 
-      // Check for 'authenticated' event
-      loginSession.on('authenticated', () => {
-        const refreshToken = loginSession.refreshToken;
-        const steamId64 = loginSession.steamID.getSteamID64();
-        const decodedToken: SteamJWT = decodeJWT(refreshToken);
-
-        // Building the insert data object
-        const insertData: SteamData = {
-          username: username,
-          refreshToken: refreshToken,
-          tokenExpiration: decodedToken.exp,
-        };
-
-        insert(insertData)
-          .then(() => {
+          try {
+            await insert(insertData);
             logger.info(`Refresh token for steamid ${steamId64} saved to db!`);
             logger.info('Restarting the login process in 3 seconds...');
             setTimeout(() => startCSGO(), 3000);
-          })
-          .catch(error => {
+          } catch (error) {
             logger.error(
               `Error while saving refresh token for steamid ${steamId64}! ${error}`
             );
-          });
-      });
+          }
+        });
+      } catch (error) {
+        logger.error(`Error during login for username ${username}: ${error}`);
+      }
     } else {
-      return new Promise(resolve => {
-        logger.info(
-          `User '${username}' has a refresh token saved! Using it to session login!`
-        );
-        const refreshToken = userData?.refreshToken;
+      logger.info(
+        `User '${username}' has a refresh token saved! Using it to session login!`
+      );
+      const refreshToken = userData.refreshToken;
 
-        // Check if the refreshToken is expired
-        logger.info('Checking if token is still valid...');
-        if (isExpired(decodeJWT(refreshToken).exp)) {
-          remove({username: username})
-            .then(() => {
-              logger.info(
-                `Refresh token for user '${username}' is expired! Restarting login process...`
-              );
-              startCSGO();
-            })
-            .catch(error => {
-              logger.error(
-                `Error while deleting db record for '${username}'! ${error}`
-              );
-            });
+      if (isExpired(decodeJWT(refreshToken).exp)) {
+        try {
+          await remove({username: username});
+          logger.info(
+            `Refresh token for user '${username}' is expired! Restarting login process...`
+          );
+          await startCSGO();
+        } catch (error) {
+          logger.error(
+            `Error while deleting db record for '${username}'! ${error}`
+          );
         }
-
-        // Token is not expired, so we continue with login
+      } else {
         logger.info('Token is still valid! Proceeding with login process!');
         user.setOption('httpProxy', proxy);
-        user.logOn({
-          refreshToken: refreshToken,
-        });
-        resolve();
-      });
+        user.logOn({refreshToken: refreshToken});
+      }
     }
   } catch (error) {
-    logger.error(`Error during fetching of data for username ${username}`);
+    logger.error(
+      `Error during fetching of data for username ${username}: ${error}`
+    );
   }
 }
 
