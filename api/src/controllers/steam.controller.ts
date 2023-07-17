@@ -133,7 +133,7 @@ export async function startCSGO(): Promise<void> {
 
         // Token is not expired, so we continue with login
         logger.info('Token is still valid! Proceeding with login process!');
-        // user.setOption('httpProxy', proxy);
+        user.setOption('httpProxy', proxy);
         user.logOn({
           refreshToken: refreshToken,
         });
