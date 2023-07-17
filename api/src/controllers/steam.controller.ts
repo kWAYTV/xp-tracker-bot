@@ -1,5 +1,12 @@
+import registerSteamUserEvents from '../handlers/steamuserevent.handler';
+import {EAuthTokenPlatformType, LoginSession} from 'steam-session';
+import registerCsgoEvents from '../handlers/csgoevent.handler';
+import {insert, select} from './database.controller';
+import {asyncReadLine} from '../utils/console.util';
 import {getRandomProxy} from '../utils/proxy.util';
+import {SteamData, SteamJWT} from '../types/steam';
 import getMedals from '../helpers/medals.helper';
+import {decodeJWT} from '../helpers/jwt.helper';
 import GlobalOffensive from 'globaloffensive';
 import {create} from '../utils/canvas.util';
 import logger from '../utils/logger.util';
@@ -10,15 +17,8 @@ import 'dotenv/config';
 const user = new SteamUser();
 const csgo = new GlobalOffensive(user);
 
-// CS:GO Events
-// !TODO - Move to 'events' folder
-csgo.on('disconnectedFromGC', () => {
-  logger.info('CS:GO GameCoordinator stopped!');
-});
-
-csgo.on('connectedToGC', () => {
-  logger.info('Connected to CS:GO GameCoordinator!');
-});
+registerSteamUserEvents(user);
+registerCsgoEvents(csgo);
 
 /**
  * Starts the CS:GO game coordinator (GC) and initiates the connection.
@@ -30,9 +30,9 @@ csgo.on('connectedToGC', () => {
  * // Example usage:
  * startGC();
  */
-function startGC(): void {
+export function startGC(userInstance: SteamUser): void {
   logger.info('Starting CS:GO');
-  user.gamesPlayed([730]);
+  userInstance.gamesPlayed([730]);
 }
 
 /**
@@ -50,24 +50,78 @@ function startGC(): void {
  *   logger.info('CS:GO started and connected to GC');
  * });
  */
-export function startCSGO(): Promise<void> {
-  return new Promise<void>(resolve => {
-    logger.info('Logging into Steam');
-    const randomProxy = getRandomProxy();
-    logger.info(`Using proxy: ${randomProxy}`);
-    user.setOption('httpProxy', randomProxy);
-    user.logOn({
-      accountName: process.env.STEAM_USERNAME!,
-      password: process.env.STEAM_PASSWORD!,
-      rememberPassword: true,
-      autoRelogin: true,
-    });
-    user.on('loggedOn', () => {
-      logger.info(`Logged into Steam (${user.steamID})`);
-      startGC();
-      resolve();
-    });
-  });
+export async function startCSGO(): Promise<void> {
+  const username = process.env.STEAM_USERNAME!;
+  const password = process.env.STEAM_PASSWORD!;
+  const proxy = getRandomProxy();
+
+  // Check if the user has a saved refresh token set
+  try {
+    const userData = await select({username: username});
+    if (!userData) {
+      logger.info(`No saved refresh token found for user '${username}'!`);
+      logger.info(`Using proxy: ${proxy}`);
+
+      const loginSession = new LoginSession(
+        EAuthTokenPlatformType.SteamClient,
+        {
+          // Disabled proxy for now because it crashed everytime.. need to fix it
+          //httpProxy: proxy,
+        }
+      );
+
+      // Start session login with credentials
+      const loginResponse = await loginSession.startWithCredentials({
+        accountName: username,
+        password: password,
+      });
+
+      // Check if additional actions are required
+      if (loginResponse.actionRequired) {
+        const mobileToken = await asyncReadLine('Twofactor Auth Code: ');
+        await loginSession.submitSteamGuardCode(mobileToken);
+      }
+
+      // Check for 'authenticated' event
+      loginSession.on('authenticated', () => {
+        const refreshToken = loginSession.refreshToken;
+        const steamId64 = loginSession.steamID.getSteamID64();
+        const decodedToken: SteamJWT = decodeJWT(refreshToken);
+
+        // Building the insert data object
+        const insertData: SteamData = {
+          username: username,
+          refreshToken: refreshToken,
+          tokenExpiration: decodedToken.exp,
+        };
+
+        insert(insertData)
+          .then(() => {
+            logger.info(`Refresh token for steamid ${steamId64} saved to db!`);
+            logger.info('Please restart the script!');
+          })
+          .catch(error => {
+            logger.error(
+              `Error while saving refresh token for steamid ${steamId64}! ${error}`
+            );
+          });
+      });
+    } else {
+      return new Promise(resolve => {
+        logger.info(
+          `User '${username}' has a refresh token saved! Using it to session login!`
+        );
+        const refreshToken = userData?.refreshToken;
+        user.setOption('httpProxy', proxy);
+        user.logOn({
+          refreshToken: refreshToken,
+        });
+        resolve();
+      });
+    }
+  } catch (error) {
+    logger.error(`Error during fetching of data for username ${username}`);
+  }
 }
 
 /**

@@ -11,7 +11,7 @@ import logger from '../utils/logger.util';
 export default function (serverInstance: Application) {
   serverInstance.get(
     '/steam/get/steamid',
-    authUA,
+    // authUA,
     async (req: Request, res: Response) => {
       const idToResolve = req.query.id?.toString();
 
@@ -32,7 +32,7 @@ export default function (serverInstance: Application) {
 
   serverInstance.get(
     '/steam/get/medals',
-    authUA,
+    // authUA,
     async (req: Request, res: Response) => {
       const idToResolve = req.query.id?.toString();
       const queueId = req.query.queueid?.toString();
@@ -64,7 +64,7 @@ export default function (serverInstance: Application) {
 
   serverInstance.get(
     '/steam/get/levels',
-    authUA,
+    // authUA,
     async (req: Request, res: Response) => {
       const idToResolve = req.query.id?.toString();
 
