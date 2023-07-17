@@ -13,7 +13,7 @@ import logger from '../utils/logger.util';
 import SteamUser from 'steam-user';
 import axios from 'axios';
 import 'dotenv/config';
-s
+
 const user = new SteamUser();
 const csgo = new GlobalOffensive(user);
 
