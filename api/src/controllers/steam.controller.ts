@@ -14,11 +14,11 @@ import SteamUser from 'steam-user';
 import axios from 'axios';
 import 'dotenv/config';
 
-const user = new SteamUser();
-const csgo = new GlobalOffensive(user);
+const STEAM = new SteamUser();
+const CSGO = new GlobalOffensive(STEAM);
 
-registerSteamUserEvents(user);
-registerCsgoEvents(csgo);
+registerSteamUserEvents(STEAM);
+registerCsgoEvents(CSGO);
 
 /**
  * Starts the CS:GO game coordinator (GC) and initiates the connection.
@@ -120,8 +120,8 @@ export async function startCSGO(): Promise<void> {
         }
       } else {
         logger.info('Token is still valid! Proceeding with login process!');
-        user.setOption('httpProxy', proxy);
-        user.logOn({refreshToken: refreshToken});
+        STEAM.setOption('httpProxy', proxy);
+        STEAM.logOn({refreshToken: refreshToken});
       }
     }
   } catch (error) {
@@ -245,14 +245,14 @@ export async function requestPlayerMedals(
   try {
     steamId = steamId.replace(/\s/g, '');
 
-    if (!csgo.haveGCSession) {
+    if (!CSGO.haveGCSession) {
       logger.error('GC not started');
       return {success: false, error: 'GC not started'};
     }
 
     logger.info(`Checking ID: ${steamId} - Queue ID: ${queueId}`);
     const data = await new Promise<GlobalOffensive.Profile>(resolve => {
-      csgo.requestPlayersProfile(steamId, profile => {
+      CSGO.requestPlayersProfile(steamId, profile => {
         resolve(profile);
       });
     });
@@ -267,7 +267,7 @@ export async function requestPlayerMedals(
     const remainingXP = 5000 - currentLevel - 10;
 
     const steamLevel = await new Promise<number>((resolve, reject) => {
-      user.getSteamLevels([steamId], (err, users) => {
+      STEAM.getSteamLevels([steamId], (err, users) => {
         if (err) {
           logger.error(`Failed to request player steam level: ${err}`);
           reject(err);
@@ -343,14 +343,14 @@ export async function requestPlayerLevel(
   try {
     steamID = steamID.replace(/\s/g, '');
 
-    if (!csgo.haveGCSession) {
+    if (!CSGO.haveGCSession) {
       logger.error('GC not started');
       return {success: false, error: 'GC not started'};
     }
 
     logger.info(`Checking ID: ${steamID}`);
     const data: GlobalOffensive.Profile = await new Promise(resolve => {
-      csgo.requestPlayersProfile(steamID, profile => {
+      CSGO.requestPlayersProfile(steamID, profile => {
         resolve(profile);
       });
     });
