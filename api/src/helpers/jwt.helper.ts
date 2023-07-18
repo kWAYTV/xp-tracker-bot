@@ -59,7 +59,7 @@ export function decodeJWT(token: string): SteamJWT {
  * console.log('Is JWT token expired?', isExpired);
  * // Output: Is JWT token expired? true
  */
-export function isExpired(expiration: number) {
+export function isExpired(expiration: number): boolean {
   const currentTimestamp = Math.floor(Date.now() / 1000);
   return expiration < currentTimestamp;
 }
