@@ -1,4 +1,11 @@
+import registerSteamUserEvents from '../handlers/steamuserevent.handler';
+import {EAuthTokenPlatformType, LoginSession} from 'steam-session';
+import registerCsgoEvents from '../handlers/csgoevent.handler';
+import {insert, select, remove} from './database.controller';
+import {decodeJWT, isExpired} from '../helpers/jwt.helper';
+import {asyncReadLine} from '../utils/console.util';
 import {getRandomProxy} from '../utils/proxy.util';
+import {SteamData, SteamJWT} from '../types/steam';
 import getMedals from '../helpers/medals.helper';
 import GlobalOffensive from 'globaloffensive';
 import {create} from '../utils/canvas.util';
@@ -7,18 +14,11 @@ import SteamUser from 'steam-user';
 import axios from 'axios';
 import 'dotenv/config';
 
-const user = new SteamUser();
-const csgo = new GlobalOffensive(user);
+const STEAM = new SteamUser();
+const CSGO = new GlobalOffensive(STEAM);
 
-// CS:GO Events
-// !TODO - Move to 'events' folder
-csgo.on('disconnectedFromGC', () => {
-  logger.info('CS:GO GameCoordinator stopped!');
-});
-
-csgo.on('connectedToGC', () => {
-  logger.info('Connected to CS:GO GameCoordinator!');
-});
+registerSteamUserEvents(STEAM);
+registerCsgoEvents(CSGO);
 
 /**
  * Starts the CS:GO game coordinator (GC) and initiates the connection.
@@ -30,9 +30,9 @@ csgo.on('connectedToGC', () => {
  * // Example usage:
  * startGC();
  */
-function startGC(): void {
+export function startGC(userInstance: SteamUser): void {
   logger.info('Starting CS:GO');
-  user.gamesPlayed([730]);
+  userInstance.gamesPlayed([730]);
 }
 
 /**
@@ -50,24 +50,85 @@ function startGC(): void {
  *   logger.info('CS:GO started and connected to GC');
  * });
  */
-export function startCSGO(): Promise<void> {
-  return new Promise<void>(resolve => {
-    logger.info('Logging into Steam');
-    const randomProxy = getRandomProxy();
-    logger.info(`Using proxy: ${randomProxy}`);
-    user.setOption('httpProxy', randomProxy);
-    user.logOn({
-      accountName: process.env.STEAM_USERNAME!,
-      password: process.env.STEAM_PASSWORD!,
-      rememberPassword: true,
-      autoRelogin: true,
-    });
-    user.on('loggedOn', () => {
-      logger.info(`Logged into Steam (${user.steamID})`);
-      startGC();
-      resolve();
-    });
-  });
+export async function startCSGO(): Promise<void> {
+  const username = process.env.STEAM_USERNAME!;
+  const password = process.env.STEAM_PASSWORD!;
+  const proxy = getRandomProxy(); // Implement the 'getRandomProxy' function
+
+  try {
+    const userData = await select({username: username});
+
+    if (!userData) {
+      logger.info(`No saved refresh token found for user '${username}'!`);
+      logger.info(`Using proxy: ${proxy}`);
+
+      const loginSession = new LoginSession(EAuthTokenPlatformType.SteamClient);
+
+      try {
+        const loginResponse = await loginSession.startWithCredentials({
+          accountName: username,
+          password: password,
+        });
+
+        if (loginResponse.actionRequired) {
+          const mobileToken = await asyncReadLine('Twofactor Auth Code: ');
+          await loginSession.submitSteamGuardCode(mobileToken);
+        }
+
+        loginSession.on('authenticated', async () => {
+          const refreshToken = loginSession.refreshToken;
+          const steamId64 = loginSession.steamID.getSteamID64();
+          const decodedToken: SteamJWT = decodeJWT(refreshToken);
+
+          const insertData: SteamData = {
+            username: username,
+            refreshToken: refreshToken,
+            tokenExpiration: decodedToken.exp,
+          };
+
+          try {
+            await insert(insertData);
+            logger.info(`Refresh token for steamid ${steamId64} saved to db!`);
+            logger.info('Restarting the login process in 3 seconds...');
+            setTimeout(() => startCSGO(), 3000);
+          } catch (error) {
+            logger.error(
+              `Error while saving refresh token for steamid ${steamId64}! ${error}`
+            );
+          }
+        });
+      } catch (error) {
+        logger.error(`Error during login for username ${username}: ${error}`);
+      }
+    } else {
+      logger.info(
+        `User '${username}' has a refresh token saved! Using it to session login!`
+      );
+      const refreshToken = userData.refreshToken;
+
+      if (isExpired(decodeJWT(refreshToken).exp)) {
+        try {
+          await remove({username: username});
+          logger.info(
+            `Refresh token for user '${username}' is expired! Restarting login process...`
+          );
+          await startCSGO();
+        } catch (error) {
+          logger.error(
+            `Error while deleting db record for '${username}'! ${error}`
+          );
+        }
+      } else {
+        logger.info('Token is still valid! Proceeding with login process!');
+        STEAM.setOption('httpProxy', proxy);
+        STEAM.logOn({refreshToken: refreshToken});
+      }
+    }
+  } catch (error) {
+    logger.error(
+      `Error during fetching of data for username ${username}: ${error}`
+    );
+  }
 }
 
 /**
@@ -184,14 +245,14 @@ export async function requestPlayerMedals(
   try {
     steamId = steamId.replace(/\s/g, '');
 
-    if (!csgo.haveGCSession) {
+    if (!CSGO.haveGCSession) {
       logger.error('GC not started');
       return {success: false, error: 'GC not started'};
     }
 
     logger.info(`Checking ID: ${steamId} - Queue ID: ${queueId}`);
     const data = await new Promise<GlobalOffensive.Profile>(resolve => {
-      csgo.requestPlayersProfile(steamId, profile => {
+      CSGO.requestPlayersProfile(steamId, profile => {
         resolve(profile);
       });
     });
@@ -206,7 +267,7 @@ export async function requestPlayerMedals(
     const remainingXP = 5000 - currentLevel - 10;
 
     const steamLevel = await new Promise<number>((resolve, reject) => {
-      user.getSteamLevels([steamId], (err, users) => {
+      STEAM.getSteamLevels([steamId], (err, users) => {
         if (err) {
           logger.error(`Failed to request player steam level: ${err}`);
           reject(err);
@@ -282,14 +343,14 @@ export async function requestPlayerLevel(
   try {
     steamID = steamID.replace(/\s/g, '');
 
-    if (!csgo.haveGCSession) {
+    if (!CSGO.haveGCSession) {
       logger.error('GC not started');
       return {success: false, error: 'GC not started'};
     }
 
     logger.info(`Checking ID: ${steamID}`);
     const data: GlobalOffensive.Profile = await new Promise(resolve => {
-      csgo.requestPlayersProfile(steamID, profile => {
+      CSGO.requestPlayersProfile(steamID, profile => {
         resolve(profile);
       });
     });
