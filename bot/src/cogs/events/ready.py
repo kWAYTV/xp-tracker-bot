@@ -17,8 +17,8 @@ class OnReady(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        self.logger = Logger(self.bot)
         self.xp_handler = XpHandler()
+        self.logger = Logger(self.bot)
 
     def print_logo(self):
         self.logger.clear()

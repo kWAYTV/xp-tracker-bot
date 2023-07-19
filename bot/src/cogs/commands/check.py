@@ -1,6 +1,5 @@
 import discord, secrets
 from discord import File
-from datetime import datetime
 from discord.ext import commands
 from discord import app_commands
 from src.util.utils import Utils
@@ -18,13 +17,13 @@ class Check(commands.Cog):
         self.bot = bot
         self.utils = Utils()
         self.config = Config()
-        self.checker = Checker()
         self.faceit = Faceit()
+        self.checker = Checker()
         self.logger = Logger(self.bot)
+        self.datetime_helper = DateTime()
         self.queue_handler = QueueHandler()
         self.medal_handler = MedalHandler()
         self.timeout_manager = TimeoutManager()
-        self.datetime_helper = DateTime()
 
     # Check bot command  
     @app_commands.command(name="check", description=f"Add some steam profile to the queue to be checked.")
@@ -180,7 +179,7 @@ class Check(commands.Cog):
     @check_command.error
     async def check_command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
         if isinstance(error, app_commands.errors.MissingPermissions):
-            return await interaction.response.send_message("{self.config.red_cross_emoji_id} You don't have permissions to use this command.", ephemeral=True)
+            return await interaction.response.send_message(f"{self.config.red_cross_emoji_id} You don't have permissions to use this command.", ephemeral=True)
         else:
             return await interaction.response.send_message(f"{self.config.red_cross_emoji_id} Error: {error}", ephemeral=True)
 

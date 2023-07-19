@@ -1,5 +1,4 @@
 import discord
-from datetime import datetime
 from discord.ext import commands
 from discord import app_commands
 from src.util.utils import Utils
@@ -11,11 +10,11 @@ from src.manager.timeout_manager import TimeoutManager
 class Revoke(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
+        self.utils = Utils()
         self.config = Config()
         self.logger = Logger(self.bot)
-        self.utils = Utils()
-        self.timeout_manager = TimeoutManager()
         self.datetime_helper = DateTime()
+        self.timeout_manager = TimeoutManager()
 
     # Revoke bot command  
     @app_commands.command(name="revoke", description="Revoke someone's timeout")
@@ -61,7 +60,7 @@ class Revoke(commands.Cog):
     @revoke_command.error
     async def revoke_command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
         if isinstance(error, app_commands.errors.MissingPermissions):
-            await interaction.response.send_message("{self.config.red_cross_emoji_id} You don't have permissions to use this command.", ephemeral=True)
+            await interaction.response.send_message(f"{self.config.red_cross_emoji_id} You don't have permissions to use this command.", ephemeral=True)
         else:
             await interaction.response.send_message(f"Error: {error}", ephemeral=True)
 

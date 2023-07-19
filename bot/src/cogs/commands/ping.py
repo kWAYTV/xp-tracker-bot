@@ -1,5 +1,4 @@
 import discord
-from datetime import datetime
 from discord.ext import commands
 from discord import app_commands
 from src.util.logger import Logger
@@ -26,7 +25,7 @@ class Ping(commands.Cog):
     @ping_command.error
     async def ping_command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
         if isinstance(error, app_commands.errors.MissingPermissions):
-            await interaction.response.send_message("{self.config.red_cross_emoji_id} You don't have permissions to use this command.", ephemeral=True)
+            await interaction.response.send_message(f"{self.config.red_cross_emoji_id} You don't have permissions to use this command.", ephemeral=True)
         else:
             await interaction.response.send_message(f"Error: {error}", ephemeral=True)
 

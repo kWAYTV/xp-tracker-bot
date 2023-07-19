@@ -7,7 +7,11 @@ class XpManager:
     def __init__(self):
         self.logger = Logger()
         self.connection = sqlite3.connect('src/database/tracked_users.sqlite')
+
+        # Create table if it doesn't exist
         self.create_table()
+
+        # Check if reset_month has been set, otherwise set it to the current month
         self.check_reset_month()
 
     def __del__(self):

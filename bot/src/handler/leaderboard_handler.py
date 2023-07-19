@@ -1,6 +1,5 @@
 import discord
 from discord.ext import commands
-from datetime import datetime
 from src.util.logger import Logger
 from src.helper.config import Config
 from src.steam.checker import Checker

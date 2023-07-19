@@ -9,13 +9,14 @@ class ProcessQueueLoop(commands.Cog):
         self.bot = bot
         self.logger = Logger()
         self.config = Config()
-        self.queue_handler = QueueHandler()
         self.proccess_queue.start()
+        self.queue_handler = QueueHandler()
 
     # Proccess the queue
     @tasks.loop(seconds=45)
     async def proccess_queue(self):
-        await self.queue_handler.force_check_start()
+        if not self.queue_handler.is_queue_processing():
+            await self.queue_handler.force_check_start()
 
     @proccess_queue.before_loop
     async def before_proccess_queue(self) -> None:

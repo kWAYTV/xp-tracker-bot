@@ -1,5 +1,4 @@
 import discord
-from datetime import datetime
 from discord.ext import commands
 from discord import app_commands
 from src.util.utils import Utils
@@ -15,8 +14,8 @@ class RemoveUser(commands.Cog):
         self.bot = bot
         self.utils = Utils()
         self.config = Config()
-        self.database = XpManager()
         self.checker = Checker()
+        self.database = XpManager()
         self.datetime_helper = DateTime()
 
     # Remove user command  
@@ -74,7 +73,7 @@ class RemoveUser(commands.Cog):
     @remove_track_user.error
     async def remove_track_user_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
         if isinstance(error, app_commands.errors.MissingPermissions):
-            await interaction.response.send_message("{self.config.red_cross_emoji_id} You don't have permissions to use this command.", ephemeral=True)
+            await interaction.response.send_message(f"{self.config.red_cross_emoji_id} You don't have permissions to use this command.", ephemeral=True)
         else:
             await interaction.response.send_message(f"Error: {error}", ephemeral=True)
 

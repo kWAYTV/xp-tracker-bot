@@ -32,7 +32,7 @@ class Faceit:
         total_wins = lifetime_stats.get('Wins', 'N/A')
 
         stats_data = {
-            'kd_ratio': kd_ratio,
+            # 'kd_ratio': kd_ratio, # not working properly 
             'avrg_headshots': avrg_headshots,
             'win_rate': win_rate,
             'longest_win_streak': longest_win_streak,
@@ -83,7 +83,7 @@ class Faceit:
             f"Faceit Level: {faceit_stats['faceit_level']}",
             f"Faceit Elo: {faceit_stats['faceit_elo']}",
             f"Membership Type: {faceit_stats['membership_type']}",
-            f"K/D Ratio: {pyfaceit_stats['kd_ratio']}",
+            #f"K/D Ratio: {pyfaceit_stats['kd_ratio']}", # not working properly 
             f"Average Headshots %: {pyfaceit_stats['avrg_headshots']}",
             f"Win Rate %: {pyfaceit_stats['win_rate']}",
             f"Longest Win Streak: {pyfaceit_stats['longest_win_streak']}",

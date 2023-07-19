@@ -1,6 +1,5 @@
 import asyncio, discord
 from queue import Queue
-from datetime import datetime
 from discord.ext import commands
 from src.util.logger import Logger
 from src.helper.config import Config
@@ -30,6 +29,10 @@ class QueueHandler:
     # Returns the queue data as a list
     def get_queue_data(self):
         return self.queue.queue
+    
+    # Return if the queue is being processed
+    def is_queue_processing(self):
+        return self.proccessing
 
     # Processes the queue
     async def process_queue(self):

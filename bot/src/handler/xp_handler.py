@@ -10,15 +10,15 @@ from src.manager.guild_manager import GuildManager
 
 class XpHandler:
     def __init__(self, bot: commands.Bot = None):
+        self.bot = bot
         self.config = Config()
         self.logger = Logger()
-        self.database = XpManager()
         self.checker = Checker()
-        self.guild_manager = GuildManager()
-        self.session = requests.Session()
-        self.session.headers.update({"User-Agent": "kWS-Auth"})
-        self.bot = bot
+        self.database = XpManager()
         self.datetime_helper = DateTime()
+        self.session = requests.Session()
+        self.guild_manager = GuildManager()
+        self.session.headers.update({"User-Agent": "kWS-Auth"})
 
     # Function to get the user level and xp
     def get_user_level_and_xp(self, id):

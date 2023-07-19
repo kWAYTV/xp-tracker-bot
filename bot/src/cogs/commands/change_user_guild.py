@@ -1,5 +1,4 @@
 import discord
-from datetime import datetime
 from discord.ext import commands
 from discord import app_commands
 from src.util.utils import Utils
@@ -8,15 +7,17 @@ from src.helper.config import Config
 from src.steam.checker import Checker
 from src.helper.datetime import DateTime
 from src.manager.xp_manager import XpManager
+from src.manager.guild_manager import GuildManager
 
 class ChangeUserGuild(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.utils = Utils()
         self.config = Config()
-        self.database = XpManager()
         self.checker = Checker()
+        self.database = XpManager()
         self.datetime_helper = DateTime()
+        self.guild_manager = GuildManager()
 
     # Remove user command  
     @app_commands.command(name="change_user_guild", description="Change the associated guild to the id's you've added to the tracker.")
@@ -31,17 +32,19 @@ class ChangeUserGuild(commands.Cog):
 
         # Clean the username
         username = await self.utils.clean_discord_username(f"{interaction.user.name}#{interaction.user.discriminator}")
-
+        
+        # Send the loading message
         changing_message = await interaction.followup.send(f"{self.config.loading_green_emoji_id} Trying to change {id}'s associated guild.", ephemeral=hidden)
 
-        if not guild_id:
+        # Check if the id is valid and get the data
+        if not self.guild_manager.guild_exists(guild_id):
             await interaction.response.send_message(f"Could not find a guild with ID {guild_id}.", ephemeral=True)
             return
 
         try:
             guild = await self.bot.fetch_guild(guild_id)
         except Exception as e:
-            await changing_message.edit(content=f"Couldn't change the guild of the id `{id}`. Error: {e}")
+            await changing_message.edit(content=f"Couldn't fetch the guild with id `{id}`. Error: {e}")
             return
 
         success, steamid64, nickname, avatar = self.checker.get_persona(id)
@@ -79,7 +82,7 @@ class ChangeUserGuild(commands.Cog):
     @change_user_guild.error
     async def change_user_guild_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
         if isinstance(error, app_commands.errors.MissingPermissions):
-            await interaction.response.send_message("{self.config.red_cross_emoji_id} You don't have permissions to use this command.", ephemeral=True)
+            await interaction.response.send_message(f"{self.config.red_cross_emoji_id} You don't have permissions to use this command.", ephemeral=True)
         else:
             await interaction.response.send_message(f"Error: {error}", ephemeral=True)
 

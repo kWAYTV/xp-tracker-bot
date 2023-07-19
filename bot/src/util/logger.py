@@ -9,7 +9,9 @@ from src.helper.datetime import DateTime
 class Logger:
 
     def __init__(self, bot: commands.Bot = None):
+        self.bot = bot
         self.config = Config()
+        self.datetime_helper = DateTime()
         # Set the colors for the logs
         self.log_types = {
             "INFO": Fore.CYAN,
@@ -22,8 +24,6 @@ class Logger:
             "INPUT": Fore.BLUE,
             "RATELIMIT": Fore.YELLOW,
         }
-        self.bot = bot
-        self.datetime_helper = DateTime()
 
     # Clear console function
     def clear(self):

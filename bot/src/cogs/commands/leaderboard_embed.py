@@ -1,5 +1,4 @@
 import discord
-from datetime import datetime
 from discord.ext import commands
 from discord import app_commands
 from src.util.logger import Logger
@@ -11,8 +10,8 @@ class LeaderboardEmbed(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.config = Config()
-        self.update_leaderboard_loop = UpdateLeaderboardLoop(bot)
         self.datetime_helper = DateTime()
+        self.update_leaderboard_loop = UpdateLeaderboardLoop(bot)
 
     # LeaderboardEmbed bot command
     @app_commands.command(name="leaderboard_embed", description="Creates and sets the leaderboard embed.")
@@ -39,7 +38,7 @@ class LeaderboardEmbed(commands.Cog):
     @leaderboard_embed_command.error
     async def leaderboard_embed_command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
         if isinstance(error, app_commands.errors.MissingPermissions):
-            await interaction.response.send_message("{self.config.red_cross_emoji_id} You don't have permissions to use this command.", ephemeral=True)
+            await interaction.response.send_message(f"{self.config.red_cross_emoji_id} You don't have permissions to use this command.", ephemeral=True)
         else:
             await interaction.response.send_message(f"Error: {error}", ephemeral=True)
 

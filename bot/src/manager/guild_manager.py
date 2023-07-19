@@ -5,6 +5,8 @@ class GuildManager:
     def __init__(self):
         self.config = Config()
         self.connection = sqlite3.connect('src/database/tracker_channels.sqlite')
+
+        # Create table if it doesn't exist
         self.create_table()
 
     def __del__(self):
@@ -58,6 +60,13 @@ class GuildManager:
             return True
         except sqlite3.Error:
             return False
+
+    def guild_exists(self, guild_id):
+        cursor = self.connection.cursor()
+        cursor.execute('''
+            SELECT * FROM tracking WHERE guild_id = ?
+        ''', (guild_id,))
+        return cursor.fetchone() is not None
 
     def get_channel_by_guild(self, guild_id):
         cursor = self.connection.cursor()

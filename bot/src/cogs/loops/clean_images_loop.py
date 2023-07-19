@@ -9,8 +9,8 @@ class CleanImagesLoop(commands.Cog):
         self.bot = bot
         self.logger = Logger()
         self.config = Config()
-        self.medal_handler = MedalHandler()
         self.clean_images.start()
+        self.medal_handler = MedalHandler()
 
     # Clean the images folder every 10 minutes
     @tasks.loop(minutes=10)
