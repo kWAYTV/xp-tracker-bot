@@ -65,5 +65,5 @@ class Revoke(commands.Cog):
             await interaction.response.send_message(f"Error: {error}", ephemeral=True)
 
 async def setup(bot: commands.Bot):
-    await bot.add_cog(Revoke(bot))
+    await bot.add_cog(Revoke(bot), guild=discord.Object(id=Config().dev_guild_id))
     return Logger().log("INFO", "Revoke command loaded!")

@@ -41,14 +41,14 @@ class Check(commands.Cog):
         is_in_timeout, time_remaining = self.timeout_manager.is_user_in_timeout(interaction.user.id)
         if is_in_timeout:
             minutes, seconds = divmod(time_remaining, 60)
-            await self.logger.discord_log(f"⏳ {username} tried to use the spam command but is in timeout for {int(minutes)} minutes and {int(seconds)} seconds.")
-            self.logger.log("INFO", f"⏳ {username} tried to use the spam command but is in timeout for {int(minutes)} minutes and {int(seconds)} seconds.")
+            await self.logger.discord_log(f"⏳ {username} tried to use the check command but is in timeout for {int(minutes)} minutes and {int(seconds)} seconds.")
+            self.logger.log("INFO", f"⏳ {username} tried to use the check command but is in timeout for {int(minutes)} minutes and {int(seconds)} seconds.")
             return await interaction.followup.send(f"{self.config.loading_red_emoji_id} You can only use this command every {self.config.user_timeout} seconds! Please wait {int(minutes)} minutes and {int(seconds)} seconds.", ephemeral=hidden)
 
         # Check if the api it's online
         if not self.checker.is_api_online():
-            await self.logger.discord_log(f"⚠️ {username} tried to use the spam command but the API is offline.")
-            self.logger.log("INFO", f"⚠️ {username} tried to use the spam command but the API is offline.")
+            await self.logger.discord_log(f"⚠️ {username} tried to use the check command but the API is offline.")
+            self.logger.log("INFO", f"⚠️ {username} tried to use the check command but the API is offline.")
             return await interaction.followup.send(f"{self.config.loading_red_emoji_id} The API is offline, please try again later.", ephemeral=hidden)
         
         # Tell the user that the bot is working on their order and log it to console and logs channel
@@ -117,7 +117,7 @@ class Check(commands.Cog):
             )
 
             # Add the results to the embed
-            embed.set_author(name=f"Tracker", icon_url=self.config.csgo_tracker_logo, url="https://kwayservices.top")
+            embed.set_author(name=f"Profile Tracker", icon_url=self.config.csgo_tracker_logo, url="https://kwayservices.top")
             embed.add_field(name=f"{self.config.arrow_blue_emoji_id} Steam Level", value=f"`{steam_level}`", inline=True)
             embed.add_field(name=f"{self.config.arrow_pink_emoji_id} CSGO Level", value=f"`{csgo_level} ({level_percentage})`", inline=True)
             embed.add_field(name=f"{self.config.arrow_yellow_emoji_id} Remaining XP", value=f"`{remaining_xp}`", inline=True)
@@ -158,7 +158,7 @@ class Check(commands.Cog):
         # Delete the image
         await self.medal_handler.delete_image(f"{queue_id}")
 
-        # Check if the user has any of the roles from the admin roles list or has admin permission
+        # Check if the user has admin permission
         if interaction.user.guild_permissions.administrator:
             await self.logger.discord_log(f"⚠️  {username} has bypassed the timeout because they have admin permissions.")
             self.logger.log("INFO", f"⚠️  {username} has bypassed the timeout because they have admin permissions.")

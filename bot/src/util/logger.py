@@ -17,6 +17,7 @@ class Logger:
             "INFO": Fore.CYAN,
             "SUCCESS": Fore.GREEN,
             "OK": Fore.GREEN,
+            "XP": Fore.GREEN,
             "WARNING": Fore.YELLOW,
             "SLEEP": Fore.YELLOW,
             "ERROR": Fore.RED,
@@ -32,7 +33,7 @@ class Logger:
     # Function to send logs to the discord channel
     async def discord_log(self, description: str):
         channel = self.bot.get_channel(self.config.logs_channel)
-        embed = discord.Embed(title="CSGO Tracker", description=description)
+        embed = discord.Embed(title="CSGO Tracker", description=f"```{description}```")
         embed.set_thumbnail(url=self.config.csgo_tracker_logo)
         embed.set_footer(text=f"CSGO Tracker • discord.gg/kws", icon_url=self.config.csgo_tracker_logo)
         embed.timestamp = self.datetime_helper.get_current_timestamp()

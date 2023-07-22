@@ -21,13 +21,15 @@ class XpManager:
     def create_table(self):
         with self.connection:
             self.connection.execute('''
-                CREATE TABLE IF NOT EXISTS tracking (
-                    steam_id BIGINT PRIMARY KEY NOT NULL,
-                    discord_id BIGINT NOT NULL,
-                    current_level BIGINT NOT NULL,
-                    current_xp BIGINT NOT NULL,
-                    guild_id BIGINT NOT NULL,
-                    total_earned BIGINT DEFAULT 0 NOT NULL
+                CREATE TABLE IF NOT EXISTS "tracking" (
+                    "steam_id"	BIGINT NOT NULL,
+                    "discord_id"	BIGINT NOT NULL,
+                    "guild_id"	BIGINT NOT NULL,
+                    "current_level"	BIGINT NOT NULL,
+                    "current_xp"	BIGINT NOT NULL,
+                    "total_earned"	BIGINT NOT NULL DEFAULT 0,
+                    "global_earned"	BIGINT NOT NULL DEFAULT 0,
+                    PRIMARY KEY("steam_id")
                 );
             ''')
             # Create a new table to store the reset month
@@ -42,10 +44,20 @@ class XpManager:
     def add_user(self, user: TrackedUser):
         try:
             with self.connection:
-                self.connection.execute("INSERT INTO tracking VALUES (?, ?, ?, ?, ?, ?)", (user.steam_id, user.discord_id, user.current_level, user.current_xp, user.guild_id, user.total_earned))
+                self.connection.execute("INSERT INTO tracking VALUES (?, ?, ?, ?, ?, ?, ?)", (user.steam_id, user.discord_id, user.guild_id, user.current_level, user.current_xp, user.total_earned, user.global_earned))
             return True
         except sqlite3.Error as e:
             self.logger.log("ERROR", f"Error adding user to tracker database: {e}")
+            return False
+
+    # Function to remove a user from the database
+    def remove_user(self, user: TrackedUser):
+        try:
+            with self.connection:
+                self.connection.execute("DELETE FROM tracking WHERE steam_id = ? AND discord_id = ?", (user.steam_id, user.discord_id))
+            return True
+        except sqlite3.Error as e:
+            self.logger.log("ERROR", f"Error deleting user: {e}")
             return False
 
     # Function to get a user from the database by steam id
@@ -65,23 +77,13 @@ class XpManager:
         return [TrackedUser(*row) for row in rows]
 
     # Function to update the data of a user
-    def update_user_level_and_xp(self, steam_id, level, xp, total_earned):
+    def update_user_level_and_xp(self, steam_id, new_level, new_xp, total_earned, global_earned):
         try:
             with self.connection:
-                self.connection.execute("UPDATE tracking SET current_level = ?, current_xp = ?, total_earned = ? WHERE steam_id = ?", (level, xp, total_earned, steam_id))
+                self.connection.execute("UPDATE tracking SET current_level = ?, current_xp = ?, total_earned = ?, global_earned = ? WHERE steam_id = ?", (new_level, new_xp, total_earned, global_earned, steam_id))
             return True
         except sqlite3.Error as e:
             self.logger.log("ERROR", f"Error updating user level & xp: {e}")
-            return False
-
-    # Function to remove a user from the database
-    def remove_user(self, user: TrackedUser):
-        try:
-            with self.connection:
-                self.connection.execute("DELETE FROM tracking WHERE steam_id = ? AND discord_id = ?", (user.steam_id, user.discord_id))
-            return True
-        except sqlite3.Error as e:
-            self.logger.log("ERROR", f"Error deleting user: {e}")
             return False
 
     # Function to check if the given user id it's the same who added the user to the database
@@ -101,6 +103,16 @@ class XpManager:
             return True
         except sqlite3.Error as e:
             self.logger.log("ERROR", f"Error changing user guild: {e}")
+            return False
+
+    # Function to change users discord id
+    def change_discord_id(self, steam_id, discord_id):
+        try:
+            with self.connection:
+                self.connection.execute("UPDATE tracking SET discord_id = ? WHERE steam_id = ?", (discord_id, steam_id))
+            return True
+        except sqlite3.Error as e:
+            self.logger.log("ERROR", f"Error changing user discord id: {e}")
             return False
 
     # Function to get all users from the database sorted by total earned
@@ -142,4 +154,33 @@ class XpManager:
             return True
         except sqlite3.Error as e:
             self.logger.log("ERROR", f"Error resetting total earned: {e}")
+            return False
+        
+    # Functiom to get user total_earned and global_earned by steamid64
+    def get_earned_by_steamid64(self, steamid64):
+        cursor = self.connection.cursor()
+        cursor.execute("SELECT total_earned, global_earned FROM tracking WHERE steam_id = ?", (steamid64,))
+        row = cursor.fetchone()
+        if row is not None:
+            return row
+        return None
+    
+    # Function to reset user's total_earned
+    def reset_monthly_xp(self, steamid64):
+        try:
+            with self.connection:
+                self.connection.execute("UPDATE tracking SET total_earned = 0 WHERE steam_id = ?", (steamid64,))
+            return True
+        except sqlite3.Error as e:
+            self.logger.log("ERROR", f"Error resetting user's total earned: {e}")
+            return False
+        
+    # Function to reset user's global_earned
+    def reset_global_xp(self, steamid64):
+        try:
+            with self.connection:
+                self.connection.execute("UPDATE tracking SET global_earned = 0 WHERE steam_id = ?", (steamid64,))
+            return True
+        except sqlite3.Error as e:
+            self.logger.log("ERROR", f"Error resetting user's global earned: {e}")
             return False

@@ -17,6 +17,7 @@ class Ping(commands.Cog):
         await interaction.response.defer(ephemeral=True)
         latency = round(self.bot.latency *  1000)
         embed = discord.Embed(title="🏓 Pong!", description=f"Hey! My latency is `{latency}` ms!", color=0xb34760)
+        embed.set_author(name=f"Tracker", icon_url=self.config.csgo_tracker_logo, url="https://kwayservices.top")
         embed.set_footer(text="CSGO Tracker • discord.gg/kws", icon_url=self.config.csgo_tracker_logo)
         embed.set_image(url=self.config.csgo_tracker_logo)
         embed.timestamp = self.datetime_helper.get_current_timestamp()

@@ -7,7 +7,7 @@ class GuildRemove(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.logger = Logger(self.bot)
-        self.guild_manager = GuildManager(self.bot)
+        self.guild_manager = GuildManager()
 
     @commands.Cog.listener()
     async def on_guild_remove(self, guild):

@@ -1,9 +1,11 @@
 import time, sqlite3
+from discord.ext import commands
 from src.util.logger import Logger
 from src.helper.config import Config
 
 class TimeoutManager:
-    def __init__(self):
+    def __init__(self, bot: commands.Bot = None):
+        self.bot = bot
         self.config = Config()
         self.logger = Logger()
         self.connection = sqlite3.connect('src/database/timeout.sqlite')

@@ -5,7 +5,7 @@ from src.util.utils import Utils
 from src.util.logger import Logger
 from src.helper.config import Config
 from src.manager.guild_manager import GuildManager
-from src.helper.trackeduser_class import TrackedUser
+from src.manager.timeout_manager import TimeoutManager
 
 class SetXpChannel(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -14,6 +14,7 @@ class SetXpChannel(commands.Cog):
         self.config = Config()
         self.logger = Logger(self.bot)
         self.guild_manager = GuildManager()
+        self.timeout_manager = TimeoutManager()
 
     # Add user command  
     @app_commands.command(name="set_tracker_channel", description="Set the specified channel as the xp tracker channel for this guild.")
@@ -28,6 +29,14 @@ class SetXpChannel(commands.Cog):
         # Clean the username
         username = await self.utils.clean_discord_username(f"{interaction.user.name}#{interaction.user.discriminator}")
 
+        # Check if the user is in timeout
+        is_in_timeout, time_remaining = self.timeout_manager.is_user_in_timeout(interaction.user.id)
+        if is_in_timeout:
+            minutes, seconds = divmod(time_remaining, 60)
+            await self.logger.discord_log(f"⏳ {username} tried to use the set_tracker_channel command but is in timeout for {int(minutes)} minutes and {int(seconds)} seconds.")
+            self.logger.log("INFO", f"⏳ {username} tried to use the set_tracker_channel command but is in timeout for {int(minutes)} minutes and {int(seconds)} seconds.")
+            return await interaction.followup.send(f"{self.config.loading_red_emoji_id} You can only use this command every {self.config.user_timeout} seconds! Please wait {int(minutes)} minutes and {int(seconds)} seconds.", ephemeral=hidden)
+
         requested_message = await interaction.followup.send(f"{self.config.loading_green_emoji_id} Trying to set channel id `{channel.id}` as the guild's xp tracker channel.", ephemeral=hidden)
 
         if self.guild_manager.get_guild(interaction.guild.id) is not None:
@@ -40,6 +49,24 @@ class SetXpChannel(commands.Cog):
         except Exception as e:
             await requested_message.edit(content=f"{self.config.loading_green_emoji_id} An error occurred while trying to add the guild to the database. Error: {e}")
             return await self.logger.discord_log(f"❌ An error occurred while trying to add the guild to the database. Error: {e}")
+        
+        # Check if the user has admin permission
+        if interaction.user.guild_permissions.administrator:
+            await self.logger.discord_log(f"⚠️  {username} has bypassed the timeout because they have admin permissions.")
+            self.logger.log("INFO", f"⚠️  {username} has bypassed the timeout because they have admin permissions.")
+        else:
+            # Add user to timeout list after they have successfully used the command
+            adding = self.timeout_manager.add_user(interaction.user.id)
+
+            # Check if the user is already in the timeout list
+            if not adding:
+                await self.logger.discord_log(f"❌ The user {username} is `already` in the timeout list.")
+                self.logger.log("INFO", f"{self.config.red_cross_emoji_id} The user {username} is already in the timeout list.")
+                return await interaction.followup.send(f"{self.config.loading_red_emoji_id} The user {username} `already` in the timeout list.", ephemeral=hidden)
+
+            # Log that the user has been added to the timeout list
+            await self.logger.discord_log(f"⏳ {username} has been added to the timeout list for {self.config.user_timeout} seconds.")
+            self.logger.log("INFO", f"⏳ {username} has been added to the timeout list for {self.config.user_timeout} seconds.")
         
         await requested_message.edit(content=f"{self.config.green_tick_emoji_id} Successfully set channel id `{channel.id}` as the guild's xp tracker channel.")
         return await self.logger.discord_log(f"✅ {username} set channel id `{channel.id}` as the guild's xp tracker channel.")
