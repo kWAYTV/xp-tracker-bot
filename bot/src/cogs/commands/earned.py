@@ -58,8 +58,8 @@ class Earned(commands.Cog):
         embed.set_author(name=f"Tracker", icon_url=self.config.csgo_tracker_logo, url="https://kwayservices.top")
 
         # Add fields to embed
-        embed.add_field(name="Monthly XP", value=f"{earned_xp[0]}", inline=True)
-        embed.add_field(name="Global XP", value=f"{earned_xp[1]}", inline=True)
+        embed.add_field(name="Monthly XP", value=f"`{earned_xp[0]}`", inline=True)
+        embed.add_field(name="Global XP", value=f"`{earned_xp[1]}`", inline=True)
 
         # Add footer and thumbnail to embed
         embed.set_footer(text="CSGO Tracker • discord.gg/kws", icon_url=self.config.csgo_tracker_logo)
@@ -70,7 +70,7 @@ class Earned(commands.Cog):
         await requested_message.edit(content=f"{self.config.green_tick_emoji_id} Database query completed!", embed=embed)
 
     @earned_command.error
-    async def hearned_command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
+    async def earned_command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
         if isinstance(error, app_commands.errors.MissingPermissions):
             await interaction.response.send_message(f"{self.config.red_cross_emoji_id} You don't have permissions to use this command.", ephemeral=True)
         else:

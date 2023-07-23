@@ -38,7 +38,7 @@ class ChangeUserGuild(commands.Cog):
 
         # Check if the id is valid and get the data
         if not self.guild_manager.guild_exists(guild_id):
-            await interaction.response.send_message(f"Could not find a guild with ID {guild_id}.", ephemeral=True)
+            await changing_message.edit(content=f"Could not find a guild with ID {guild_id}.")
             return
 
         try:

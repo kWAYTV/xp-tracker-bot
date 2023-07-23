@@ -13,6 +13,7 @@ class ChangeUserOwner(commands.Cog):
         self.bot = bot
         self.utils = Utils()
         self.config = Config()
+        self.logger = Logger()
         self.checker = Checker()
         self.database = XpManager()
         self.datetime_helper = DateTime()
