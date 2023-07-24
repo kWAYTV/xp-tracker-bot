@@ -8,6 +8,7 @@ from src.steam.checker import Checker
 from src.helper.datetime import DateTime
 from src.manager.xp_manager import XpManager
 from src.helper.trackeduser_class import TrackedUser
+from src.manager.admin_mode_manager import AdminModeManager
 
 class RemoveUser(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -18,6 +19,7 @@ class RemoveUser(commands.Cog):
         self.checker = Checker()
         self.database = XpManager()
         self.datetime_helper = DateTime()
+        self.admin_mode_manager = AdminModeManager()
 
     # Remove user command  
     @app_commands.command(name="remove_user", description="Remove an user from the xp tracker database.")
@@ -25,7 +27,6 @@ class RemoveUser(commands.Cog):
         id="The steamid64/vanity/profile url of the user you want to stop to track.",
         hidden="If the command should be hidden from other users or not."
     )
-    @app_commands.checks.has_permissions(administrator=True)
     async def remove_track_user(self, interaction: discord.Interaction, id: str, hidden: bool = True):
         await interaction.response.defer(ephemeral=hidden)
 
@@ -33,6 +34,20 @@ class RemoveUser(commands.Cog):
         username = await self.utils.clean_discord_username(f"{interaction.user.name}#{interaction.user.discriminator}")
 
         added_message = await interaction.followup.send(f"{self.config.loading_green_emoji_id} Trying to remove id `{id}` from the tracker database.", ephemeral=hidden)
+
+        admin_mode = self.admin_mode_manager.get_admin_mode(interaction.guild_id)
+
+        # Check if the admin mode is set
+        if admin_mode is None:
+            await added_message.edit(content=f"{self.config.red_cross_emoji_id} Couldn't get the admin mode status for this server. Tell the owner to set it.")
+            await self.logger.discord_log(f"✅ {username} tried to add an id to the tracker database, but couldn't get the admin mode status.")
+            return
+
+        # Check if the user has permissions to use this command
+        if not interaction.user.guild_permissions.administrator and admin_mode:
+            await added_message.edit(content=f"{self.config.red_cross_emoji_id} The admin mode is enabled. Only administrators can use this command.")
+            await self.logger.discord_log(f"✅ {username} tried to add an id to the tracker database, but the admin mode is enabled.")
+            return
 
         success, steamid64, nickname, avatar = self.checker.get_persona(id)
 
