@@ -68,7 +68,7 @@ class GuildManager:
         ''', (guild_id,))
         return cursor.fetchone() is not None
 
-    def get_channel_by_guild(self, guild_id):
+    async def get_channel_by_guild(self, guild_id):
         cursor = self.connection.cursor()
         cursor.execute('''
             SELECT channel_id FROM tracking WHERE guild_id = ?

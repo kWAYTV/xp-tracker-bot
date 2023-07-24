@@ -85,7 +85,9 @@ class XpHandler:
         self.logger.log("INFO", f"Checking xp for {amount} users.")
         for user in users:
             for i in range(3):
-                tracker_channel = self.guild_manager.get_channel_by_guild(user.guild_id) or self.config.discord_tracker_channel_id
+                tracker_channel = await self.guild_manager.get_channel_by_guild(user.guild_id)
+                if tracker_channel is None:
+                    tracker_channel = self.config.discord_tracker_channel_id
                 try:
                     new_level, new_xp, remaining_xp, percentage = self.get_user_level_and_xp(user.steam_id)
                     if new_level > user.current_level:  # Level up case
