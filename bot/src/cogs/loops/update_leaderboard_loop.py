@@ -8,8 +8,8 @@ class UpdateLeaderboardLoop(commands.Cog):
         self.bot = bot
         self.logger = Logger()
         self.config = Config()
-        self.leaderboard_handler = LeaderboardHandler(bot)
         self.update_leaderboard_embed.start()
+        self.leaderboard_handler = LeaderboardHandler(bot)
 
     # Update leaderboard embed message
     @tasks.loop(seconds=Config().checker_interval)  # you can change this to any value you like

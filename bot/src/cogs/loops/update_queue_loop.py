@@ -8,8 +8,8 @@ class UpdateQueueLoop(commands.Cog):
         self.bot = bot
         self.logger = Logger()
         self.config = Config()
-        self.queue_handler = QueueHandler(bot)
         self.update_queue_embed.start()
+        self.queue_handler = QueueHandler(bot)
 
     # Update queue embed message
     @tasks.loop(seconds=Config().update_embeds_delay)

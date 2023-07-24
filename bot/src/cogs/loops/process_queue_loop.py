@@ -9,8 +9,8 @@ class ProcessQueueLoop(commands.Cog):
         self.bot = bot
         self.logger = Logger()
         self.config = Config()
-        self.queue_handler = QueueHandler()
         self.proccess_queue.start()
+        self.queue_handler = QueueHandler()
 
     # Proccess the queue
     @tasks.loop(seconds=45)

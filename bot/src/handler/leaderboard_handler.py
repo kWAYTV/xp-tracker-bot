@@ -1,6 +1,5 @@
 import discord
 from discord.ext import commands
-from datetime import datetime
 from src.util.logger import Logger
 from src.helper.config import Config
 from src.steam.checker import Checker
@@ -34,7 +33,7 @@ class LeaderboardHandler:
         # Set the embed description
         if length > 0:
             description = "`Name`/`Earned`\n"
-            for index, user in enumerate(data[:10], start=1): # Only show the top 10
+            for index, user in enumerate(data[:10], start=1): # Only show the top 10, start index at 1
                 steamid64, total_earned = user[0], user[1]
                 # Get user info
                 success, steam64id, name, avatar = self.checker.get_persona(steamid64)

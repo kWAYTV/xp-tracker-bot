@@ -8,9 +8,9 @@ class XpTrackLoop(commands.Cog):
 
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
+        self.xp_track.start()
         self.config = Config()
         self.xp_handler = XpHandler(self.bot)
-        self.xp_track.start()
 
     # Check xp
     @tasks.loop(seconds=Config().checker_interval)

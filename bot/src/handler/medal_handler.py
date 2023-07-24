@@ -4,7 +4,7 @@ from src.util.logger import Logger
 class MedalHandler:
     def __init__(self):
         self.logger = Logger()
-        self.base_dir = "/root/csgo-checker-api/src/data/medals/output"
+        self.base_dir = "/root/cs-tracker-api/src/data/medals/output"
 
     # Function to get the medals image path
     async def get_image_path(self, image_name: str):

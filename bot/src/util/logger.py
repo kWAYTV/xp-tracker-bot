@@ -9,12 +9,15 @@ from src.helper.datetime import DateTime
 class Logger:
 
     def __init__(self, bot: commands.Bot = None):
+        self.bot = bot
         self.config = Config()
+        self.datetime_helper = DateTime()
         # Set the colors for the logs
         self.log_types = {
             "INFO": Fore.CYAN,
             "SUCCESS": Fore.GREEN,
             "OK": Fore.GREEN,
+            "XP": Fore.GREEN,
             "WARNING": Fore.YELLOW,
             "SLEEP": Fore.YELLOW,
             "ERROR": Fore.RED,
@@ -22,8 +25,6 @@ class Logger:
             "INPUT": Fore.BLUE,
             "RATELIMIT": Fore.YELLOW,
         }
-        self.bot = bot
-        self.datetime_helper = DateTime()
 
     # Clear console function
     def clear(self):
@@ -32,7 +33,7 @@ class Logger:
     # Function to send logs to the discord channel
     async def discord_log(self, description: str):
         channel = self.bot.get_channel(self.config.logs_channel)
-        embed = discord.Embed(title="CSGO Tracker", description=description)
+        embed = discord.Embed(title="CSGO Tracker", description=f"```{description}```")
         embed.set_thumbnail(url=self.config.csgo_tracker_logo)
         embed.set_footer(text=f"CSGO Tracker • discord.gg/kws", icon_url=self.config.csgo_tracker_logo)
         embed.timestamp = self.datetime_helper.get_current_timestamp()
