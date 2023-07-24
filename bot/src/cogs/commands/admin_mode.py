@@ -15,7 +15,7 @@ class AdminModeCommand(commands.Cog):
 
     # Admin mode bot command  
     @app_commands.command(name="admin_mode", description="Enable or disable the admin mode.")
-    async def help_command(self, interaction: discord.Interaction, switch: bool, hidden: bool = True):
+    async def admin_mode_command(self, interaction: discord.Interaction, switch: bool, hidden: bool = True):
         await interaction.response.defer(ephemeral=hidden)
 
         request_message = await interaction.followup.send(f"{self.config.loading_green_emoji_id} Trying to set admin mode to `{switch}`.", ephemeral=hidden)
@@ -38,8 +38,8 @@ class AdminModeCommand(commands.Cog):
         # Send a message to the user
         await request_message.edit(content=f"{self.config.green_tick_emoji_id} Admin mode has been set to `{switch}`.")
 
-    @help_command.error
-    async def help_command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
+    @admin_mode_command.error
+    async def admin_mode_command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
         if isinstance(error, app_commands.errors.MissingPermissions):
             await interaction.response.send_message(f"{self.config.red_cross_emoji_id} You don't have permissions to use this command.", ephemeral=True)
         else:

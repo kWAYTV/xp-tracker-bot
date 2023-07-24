@@ -15,7 +15,7 @@ class GuildRemove(commands.Cog):
         # Check if the guild exists in the database and remove it if it does
         if self.guild_manager.guild_exists(guild.id):
             try:
-                await self.guild_manager.remove_guild(guild.id)
+                self.guild_manager.remove_guild(guild.id)
             except Exception as e:
                 await self.logger.log("ERROR", f"An error occurred while trying to remove the guild {guild.name} from the database. Error: {e}")
                 await self.logger.discord_log(f"An error occurred while trying to remove the guild {guild.name} from the database. Error: {e}")
