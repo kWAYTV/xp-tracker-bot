@@ -1,4 +1,4 @@
-import discord
+import discord, asyncio
 from os import system, name
 from datetime import datetime
 from discord.ext import commands
@@ -38,6 +38,18 @@ class Logger:
         embed.set_footer(text=f"CSGO Tracker • discord.gg/kws", icon_url=self.config.csgo_tracker_logo)
         embed.timestamp = self.datetime_helper.get_current_timestamp()
         await channel.send(embed=embed)
+
+    # Function to dm user by id
+    async def dm_user(self, userid: int, message: str):
+        dm_user = await self.bot.fetch_user(userid)
+        await dm_user.send(message)
+
+    # Function to dm every guild owner
+    async def dm_guild_owners(self, message: str):
+        for guild in self.bot.guilds:
+            owner = guild.owner
+            await owner.send(message)
+            asyncio.sleep(4)
 
     # Function to log messages to the console
     def log(self, type, message):

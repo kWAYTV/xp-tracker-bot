@@ -14,7 +14,11 @@ class AdminModeCommand(commands.Cog):
         self.admin_mode_manager = AdminModeManager()
 
     # Admin mode bot command  
-    @app_commands.command(name="admin_mode", description="Enable or disable the admin mode.")
+    @app_commands.command(name="admin_mode", description="Enable or disable the admin mode on this server.")
+    @app_commands.describe(
+        switch="If the admin mode should be enabled or disabled.",
+        hidden="If the command should be hidden from other users or not."
+    )
     async def admin_mode_command(self, interaction: discord.Interaction, switch: bool, hidden: bool = True):
         await interaction.response.defer(ephemeral=hidden)
 

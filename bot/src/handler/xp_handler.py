@@ -12,9 +12,9 @@ class XpHandler:
     def __init__(self, bot: commands.Bot = None):
         self.bot = bot
         self.config = Config()
-        self.logger = Logger()
         self.checker = Checker()
         self.database = XpManager()
+        self.logger = Logger(self.bot)
         self.datetime_helper = DateTime()
         self.session = requests.Session()
         self.guild_manager = GuildManager()
@@ -84,20 +84,26 @@ class XpHandler:
         self.logger.log("INFO", f"Checking xp for {amount} users.")
         for user in users:
             for i in range(3):
-                tracker_channel = await self.guild_manager.get_channel_by_guild(user.guild_id)
                 try:
+                    if not self.guild_manager.guild_exists(user.guild_id):
+                        await self.logger.dm_user(user.discord_id, f"Removing {user.steam_id} ({user.discord_id}) from database because outdated guild id or channel id.")
+                        self.logger.log("WARNING", f"Removing {user.steam_id} ({user.discord_id}) from database because outdated guild id or channel id.")
+                        await self.logger.discord_log(f"Removing {user.steam_id} ({user.discord_id}) from database because outdated guild id or channel id.")
+                        self.database.remove_user(user)
+                        break
+                    tracker_channel = await self.guild_manager.get_channel_by_guild(user.guild_id)
                     new_level, new_xp, remaining_xp, percentage = self.get_user_level_and_xp(user.steam_id)
                     if new_level > user.current_level:  # Level up case
                         earned_xp = new_xp
                     else:
                         earned_xp = new_xp - user.current_xp
+                    if user.has_updated(new_level, new_xp):
+                        await self.send_update(tracker_channel, user, new_level, new_xp, remaining_xp, percentage, earned_xp)
+                        total_monthly, total_global = user.total_earned + earned_xp, user.global_earned + earned_xp
+                        self.database.update_user_level_and_xp(user.steam_id, new_level, new_xp, total_monthly, total_global)
+                        self.logger.log("XP", f"Updating {user.steam_id} to level {new_level} and xp {new_xp}. Total earned: {total_monthly} Global earned: {total_global} Guild: {user.guild_id}")
                 except Exception as e:
                     self.logger.log("ERROR", f"Error checking tracking: {e}")
                     continue
-                if user.has_updated(new_level, new_xp):
-                    await self.send_update(tracker_channel, user, new_level, new_xp, remaining_xp, percentage, earned_xp)
-                    total_monthly, total_global = user.total_earned + earned_xp, user.global_earned + earned_xp
-                    self.database.update_user_level_and_xp(user.steam_id, new_level, new_xp, total_monthly, total_global)
-                    self.logger.log("XP", f"Updating {user.steam_id} to level {new_level} and xp {new_xp}. Total earned: {total_monthly} Global earned: {total_global}")
                 break
             await asyncio.sleep(3)

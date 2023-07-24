@@ -1,5 +1,5 @@
 class TrackedUser:
-    def __init__(self, steam_id, discord_id, guild_id, current_level, current_xp, total_earned: int = 0, global_earned: int = 0):
+    def __init__(self, steam_id, discord_id, guild_id, current_level, current_xp, total_earned, global_earned):
         self.steam_id = steam_id
         self.discord_id = discord_id
         self.guild_id = guild_id

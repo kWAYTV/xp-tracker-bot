@@ -14,7 +14,7 @@ class QueueEmbed(commands.Cog):
         self.update_queue_loop = UpdateQueueLoop(bot)
 
     # QueueEmbed bot command
-    @app_commands.command(name="queue_embed", description="Creates and sets the queue embed.")
+    @app_commands.command(name="queue_embed", description="Creates and sets the queue embed in the current channel.")
     @app_commands.checks.has_permissions(administrator=True)
     async def queue_embed_command(self, interaction: discord.Interaction):
         await interaction.response.defer()

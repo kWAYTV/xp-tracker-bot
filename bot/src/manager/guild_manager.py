@@ -78,7 +78,7 @@ class GuildManager:
                 SELECT channel_id FROM tracking WHERE guild_id = ?
             ''', (guild_id,))
             result = cursor.fetchone()
-            return int(result[0]) if result else self.config.discord_tracker_channel_id
+            return int(result[0])
         
     def clean_guilds(self, bot):
         bot_guild_ids = [guild.id for guild in bot.guilds]

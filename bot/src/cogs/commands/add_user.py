@@ -84,7 +84,7 @@ class AddUser(commands.Cog):
             return
 
         # Add the user to the database
-        added_user = TrackedUser(steamid64, interaction.user.id, level, xp, interaction.guild.id)
+        added_user = TrackedUser(steamid64, interaction.user.id, interaction.guild.id, level, xp, 0, 0)
         try:
             self.database.add_user(added_user)
         except Exception as e:

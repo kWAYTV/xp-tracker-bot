@@ -22,8 +22,8 @@ class ResetXP(commands.Cog):
     # Earned bot command  
     @app_commands.command(name="reset_xp", description="Let's you reset your own xp.")
     @app_commands.describe(
-        id="The steam id (profile link, custom id, steamid64) to be checked.",
-        hidden="If the command should be hidden from other users or not."
+        mode="If you want to reset the monthly xp, global xp or both.",
+        id="The steamid64/vanity/profile url of the user you want to reset the xp of.",
     )
     async def earned_command(self, interaction: discord.Interaction, mode: Literal["Monthly", "Global", "Both"], id: str, hidden: bool = True):
         await interaction.response.defer(ephemeral=hidden)

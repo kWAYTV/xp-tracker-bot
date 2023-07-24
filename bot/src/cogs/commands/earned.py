@@ -21,7 +21,7 @@ class Earned(commands.Cog):
     # Earned bot command  
     @app_commands.command(name="earned", description="Shows how many XP you've learned in last month or in total.")
     @app_commands.describe(
-        id="The steam id (profile link, custom id, steamid64) to be checked.",
+        id="The steamid64/vanity/profile url of the user you want to see the earned xp of.",
         hidden="If the command should be hidden from other users or not."
     )
     async def earned_command(self, interaction: discord.Interaction, id: str, hidden: bool = True):

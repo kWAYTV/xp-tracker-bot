@@ -14,13 +14,13 @@ class LeaderboardEmbed(commands.Cog):
         self.update_leaderboard_loop = UpdateLeaderboardLoop(bot)
 
     # LeaderboardEmbed bot command
-    @app_commands.command(name="leaderboard_embed", description="Creates and sets the leaderboard embed.")
+    @app_commands.command(name="leaderboard_embed", description="Creates and sets the leaderboard embed in the current channel.")
     @app_commands.checks.has_permissions(administrator=True)
     async def leaderboard_embed_command(self, interaction: discord.Interaction):
         await interaction.response.defer()
 
         if not self.config.leaderboard_embed_switch:
-            return await interaction.followup.send("{self.config.red_cross_emoji_id} Leaderboard embed is disabled in the config! Enable it and restart the bot.", ephemeral=True)
+            return await interaction.followup.send(f"{self.config.red_cross_emoji_id} Leaderboard embed is disabled in the config! Enable it and restart the bot.", ephemeral=True)
         
         embed = discord.Embed(title="🏆 XP Leaderboard.", color=0xb34760)
         embed.set_footer(text="CSGO Tracker • discord.gg/kws", icon_url=self.config.csgo_tracker_logo)

@@ -36,11 +36,6 @@ class ChangeUserGuild(commands.Cog):
         # Send the loading message
         changing_message = await interaction.followup.send(f"{self.config.loading_green_emoji_id} Trying to change {id}'s associated guild.", ephemeral=hidden)
 
-        # Check if the id is valid and get the data
-        if not self.guild_manager.guild_exists(guild_id):
-            await changing_message.edit(content=f"Could not find a guild with ID {guild_id}.")
-            return
-
         try:
             guild = await self.bot.fetch_guild(guild_id)
         except Exception as e:

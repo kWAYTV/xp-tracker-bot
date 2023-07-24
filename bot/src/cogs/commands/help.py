@@ -38,6 +38,9 @@ class Help(commands.Cog):
 
     # Help bot command  
     @app_commands.command(name="help", description="Shows the commands to use the bot.")
+    @app_commands.describe(
+        hidden="If the command should be hidden from other users or not."
+    )
     async def help_command(self, interaction: discord.Interaction, hidden: bool = False):
         await interaction.response.defer(ephemeral=hidden)
 
