@@ -19,7 +19,7 @@ class GuildJoin(commands.Cog):
         await self.logger.discord_log(f"✅ Bot joined Guild: {guild.name}. Syncing commands...")
 
         # Send a DM to the guild owner
-        await guild.owner.send(f"Hello {guild.owner.name}, your guild {guild.name} has successfully synced commands with the bot! To start, use the command `/setup` on your server.")
+        await guild.owner.send(f"Hello `{guild.owner.name}`, your guild `{guild.name}` has successfully synced commands with the bot! To start, use the command `/setup` on your server.")
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(GuildJoin(bot))

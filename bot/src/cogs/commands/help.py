@@ -14,11 +14,8 @@ commands_text = f"""
   > - */check* - Add some steam profile to the queue to be profile-checked.
 
 **🚀 XP Tracker Commands**
-  > - */set_tracker_channel* - Set the channel where the bot will send the xp-tracker messages on this server.
   > - */add_user* - Add some user to the xp-tracker database.
   > - */remove_user* - Remove some user from the xp-tracke database, being you who added the user.
-  > - */change_user_guild* - Change the user's guild, being you who added the user.
-  > - */change_user_owner* - Change the id's ownership, being you who added the user.
   > - */reset_xp* - Let's you reset monthly or total xp, being you who added the user.
   > - */earned* - Show how much xp you've earned in the last month or in total.
 
@@ -26,6 +23,11 @@ commands_text = f"""
 
 **⛔ Admin Commands**
   > - *.sync* - Sync the Discord bot commands.
+  > - */setup* - Shows the steps to setup the bot on your server.
+  > - */admin_mode* - Set the admin mode for the server.
+  > - */set_tracker_channel* - Set the channel where the bot will send the xp-tracker messages on this server.
+  > - */change_user_guild* - Change the user's guild, being you who added the user.
+  > - */change_user_owner* - Change the id's ownership, being you who added the user.
 """
 
 class Help(commands.Cog):
