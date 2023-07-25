@@ -66,7 +66,7 @@ class RemoveUser(commands.Cog):
             await self.logger.discord_log(f"✅ {username} tried to remove the id `{id}` from the tracker database but it doesn't have permission.")
             return
         
-        removed_user = TrackedUser(steamid64, interaction.user.id, None, None, None)
+        removed_user = TrackedUser(steamid64, interaction.user.id, None, None, None, None, None)
 
         try:
             self.database.remove_user(removed_user)

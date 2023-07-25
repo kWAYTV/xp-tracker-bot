@@ -22,7 +22,7 @@ class GuildRemove(commands.Cog):
                 return
 
         # Clean possible remaining trash guilds
-        self.guild_manager.clean_guilds()
+        self.guild_manager.clean_guilds(self.bot)
 
         # Log the event
         self.logger.log("INFO", f"The guild {guild.name} has been removed from the bot.")

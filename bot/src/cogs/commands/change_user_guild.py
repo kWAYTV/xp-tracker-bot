@@ -16,6 +16,7 @@ class ChangeUserGuild(commands.Cog):
         self.config = Config()
         self.checker = Checker()
         self.database = XpManager()
+        self.logger = Logger(self.bot)
         self.datetime_helper = DateTime()
         self.guild_manager = GuildManager()
 
