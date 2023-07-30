@@ -50,24 +50,6 @@ class SetXpChannel(commands.Cog):
             await requested_message.edit(content=f"{self.config.loading_green_emoji_id} An error occurred while trying to add the guild to the database. Error: {e}")
             return await self.logger.discord_log(f"❌ An error occurred while trying to add the guild to the database. Error: {e}")
         
-        # Check if the user has admin permission
-        if interaction.user.guild_permissions.administrator:
-            await self.logger.discord_log(f"⚠️  {username} has bypassed the timeout because they have admin permissions.")
-            self.logger.log("INFO", f"⚠️  {username} has bypassed the timeout because they have admin permissions.")
-        else:
-            # Add user to timeout list after they have successfully used the command
-            adding = self.timeout_manager.add_user(interaction.user.id)
-
-            # Check if the user is already in the timeout list
-            if not adding:
-                await self.logger.discord_log(f"❌ The user {username} is `already` in the timeout list.")
-                self.logger.log("INFO", f"{self.config.red_cross_emoji_id} The user {username} is already in the timeout list.")
-                return await interaction.followup.send(f"{self.config.loading_red_emoji_id} The user {username} `already` in the timeout list.", ephemeral=hidden)
-
-            # Log that the user has been added to the timeout list
-            await self.logger.discord_log(f"⏳ {username} has been added to the timeout list for {self.config.user_timeout} seconds.")
-            self.logger.log("INFO", f"⏳ {username} has been added to the timeout list for {self.config.user_timeout} seconds.")
-        
         await requested_message.edit(content=f"{self.config.green_tick_emoji_id} Successfully set channel id `{channel.id}` as the guild's xp tracker channel.")
         return await self.logger.discord_log(f"✅ {username} set channel id `{channel.id}` as the guild's xp tracker channel.")
 

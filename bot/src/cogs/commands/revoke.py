@@ -23,6 +23,7 @@ class Revoke(commands.Cog):
         notify_user="If you want to notify the user that their timeout has been revoked."
     )
     @app_commands.checks.has_permissions(administrator=True)
+    @app_commands.guilds(Config().dev_guild_id)
     async def revoke_command(self, interaction: discord.Interaction, user: discord.Member, notify_user: bool = True):
         await interaction.response.defer(ephemeral=True)
 
@@ -65,5 +66,5 @@ class Revoke(commands.Cog):
             await interaction.response.send_message(f"Error: {error}", ephemeral=True)
 
 async def setup(bot: commands.Bot):
-    await bot.add_cog(Revoke(bot), guild=discord.Object(id=Config().dev_guild_id))
+    await bot.add_cog(Revoke(bot))
     return Logger().log("INFO", "Revoke command loaded!")

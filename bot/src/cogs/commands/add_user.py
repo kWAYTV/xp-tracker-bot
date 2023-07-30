@@ -77,7 +77,7 @@ class AddUser(commands.Cog):
 
         # Get the level and XP
         try:
-            level, xp, remaining_xp, percentage = self.xp_handler.get_user_level_and_xp(steamid64)
+            level, xp, remaining_xp, percentage = await self.xp_handler.get_user_level_and_xp(steamid64)
         except Exception as e:
             await added_message.edit(content=f"{self.config.red_cross_emoji_id} Couldn't get level and XP for `{id}`, couldn't add him to the tracker database. Error: {e}")
             await self.logger.discord_log(f"✅ {username} tried to add an id to the tracker database, but couldn't get the level and XP.")

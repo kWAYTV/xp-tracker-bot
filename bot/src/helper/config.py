@@ -1,3 +1,4 @@
+import discord
 from ruamel.yaml import YAML
 
 class Config:
@@ -17,7 +18,7 @@ class Config:
         self.discord_token = self.config["discord_token"]
         self.bot_prefix = self.config["bot_prefix"]
         self.logs_channel = int(self.config["logs_channel"])
-        self.dev_guild_id = int(self.config["dev_guild_id"])
+        self.dev_guild_id = discord.Object(int(self.config["dev_guild_id"]))
         self.user_timeout = int(self.config["user_timeout"])
         self.queue_embed_switch = self.config["queue_embed_switch"]
         self.queue_embed_channel_id = int(self.config["queue_embed_channel_id"])

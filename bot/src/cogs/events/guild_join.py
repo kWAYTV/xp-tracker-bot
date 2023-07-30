@@ -10,16 +10,17 @@ class GuildJoin(commands.Cog):
     @commands.Cog.listener()
     async def on_guild_join(self, guild):
 
-        # Copy the global commands to the guild
-        self.bot.tree.copy_global_to(guild=guild)
-        await self.bot.tree.sync(guild=guild)
-
         # Log the event
-        self.logger.log("INFO", f"✅ Bot joined Guild: {guild.name}. Syncing commands...")
-        await self.logger.discord_log(f"✅ Bot joined Guild: {guild.name}. Syncing commands...")
+        self.logger.log("INFO", f"✅ Bot joined Guild: {guild.name}. ({guild.id})")
+        await self.logger.discord_log(f"✅ Bot joined Guild: {guild.name} ({guild.id}).")
 
         # Send a DM to the guild owner
-        await guild.owner.send(f"Hello `{guild.owner.name}`, your guild `{guild.name}` has successfully synced commands with the bot! To start, use the command `/setup` on your server.")
+        try:
+            await guild.owner.send(f"Hello `{guild.owner.name}`, your guild `{guild.name}` has successfully synced commands with the bot! To start, use the command `/setup` on your server.")
+        except:
+            self.logger.log("INFO", f"❌ Couln't send a DM to the guild owner of {guild.name} ({guild.owner.id}).")
+            await self.logger.discord_log(f"❌ Couln't send a DM to the guild owner of {guild.name} ({guild.owner.id}).")
+            return
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(GuildJoin(bot))

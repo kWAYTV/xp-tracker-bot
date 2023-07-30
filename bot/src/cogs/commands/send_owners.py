@@ -18,6 +18,7 @@ class SendOwners(commands.Cog):
         message="The message you want to send to every guild owner.",
     )
     @app_commands.checks.has_permissions(administrator=True)
+    @app_commands.guilds(Config().dev_guild_id)
     async def send_owners_command(self, interaction: discord.Interaction, message: str):
         await interaction.response.defer(ephemeral=True)
 
@@ -41,5 +42,5 @@ class SendOwners(commands.Cog):
             await interaction.response.send_message(f"Error: {error}", ephemeral=True)
 
 async def setup(bot: commands.Bot):
-    await bot.add_cog(SendOwners(bot), guild=discord.Object(id=Config().dev_guild_id))
+    await bot.add_cog(SendOwners(bot))
     return Logger().log("INFO", "Send owners command loaded!")

@@ -21,7 +21,7 @@ class XpHandler:
         self.session.headers.update({"User-Agent": "kWS-Auth"})
 
     # Function to get the user level and xp
-    def get_user_level_and_xp(self, id):
+    async def get_user_level_and_xp(self, id):
 
         success, steamid64, nickname, avatar = self.checker.get_persona(id)
 
@@ -92,15 +92,15 @@ class XpHandler:
                         self.database.remove_user(user)
                         break
                     tracker_channel = await self.guild_manager.get_channel_by_guild(user.guild_id)
-                    new_level, new_xp, remaining_xp, percentage = self.get_user_level_and_xp(user.steam_id)
+                    new_level, new_xp, remaining_xp, percentage = await self.get_user_level_and_xp(user.steam_id)
                     if new_level > user.current_level:  # Level up case
                         earned_xp = new_xp
+                        if new_level >= 40:
+                            await self.logger.dm_user(user.discord_id, "You have reached the maximum level (40). Claim your medal!")
+                            self.logger.log("INFO", f"User {user.steam_id} ({user.discord_id}) has reached the maximum level (40).")
+                            await self.logger.discord_log(f"User {user.steam_id} ({user.discord_id}) has reached the maximum level (40).")
                     else:
                         earned_xp = new_xp - user.current_xp
-                    if new_level >= 40:
-                        await self.logger.dm_user(user.discord_id, "You have reached the maximum level (40). Claim your medal!")
-                        self.logger.log("INFO", f"User {user.steam_id} ({user.discord_id}) has reached the maximum level (40).")
-                        await self.logger.discord_log(f"User {user.steam_id} ({user.discord_id}) has reached the maximum level (40).")
                     if user.has_updated(new_level, new_xp):
                         await self.send_update(tracker_channel, user, new_level, new_xp, remaining_xp, percentage, earned_xp)
                         total_monthly, total_global = user.total_earned + earned_xp, user.global_earned + earned_xp

@@ -16,6 +16,7 @@ class LeaderboardEmbed(commands.Cog):
     # LeaderboardEmbed bot command
     @app_commands.command(name="leaderboard_embed", description="Creates and sets the leaderboard embed in the current channel.")
     @app_commands.checks.has_permissions(administrator=True)
+    @app_commands.guilds(Config().dev_guild_id)
     async def leaderboard_embed_command(self, interaction: discord.Interaction):
         await interaction.response.defer()
 
@@ -43,5 +44,5 @@ class LeaderboardEmbed(commands.Cog):
             await interaction.response.send_message(f"Error: {error}", ephemeral=True)
 
 async def setup(bot: commands.Bot):
-    await bot.add_cog(LeaderboardEmbed(bot), guild=discord.Object(id=Config().dev_guild_id))
+    await bot.add_cog(LeaderboardEmbed(bot))
     return Logger().log("INFO", "Leaderboard embed command loaded!")

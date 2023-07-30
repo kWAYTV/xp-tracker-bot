@@ -159,7 +159,7 @@ class Check(commands.Cog):
         await self.medal_handler.delete_image(f"{queue_id}")
 
         # Check if the user has admin permission
-        if interaction.user.guild_permissions.administrator:
+        if not isinstance(interaction.channel, discord.channel.DMChannel) and interaction.user.guild_permissions.administrator:
             await self.logger.discord_log(f"⚠️  {username} has bypassed the timeout because they have admin permissions.")
             self.logger.log("INFO", f"⚠️  {username} has bypassed the timeout because they have admin permissions.")
         else:

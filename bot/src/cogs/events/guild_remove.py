@@ -6,7 +6,7 @@ class GuildRemove(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        self.logger = Logger(self.bot)
+        self.logger = Logger(bot)
         self.guild_manager = GuildManager()
 
     @commands.Cog.listener()

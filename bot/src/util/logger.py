@@ -30,30 +30,41 @@ class Logger:
     def clear(self):
         system("cls" if name in ("nt", "dos") else "clear")
 
-    # Function to send logs to the discord channel
-    async def discord_log(self, description: str):
-        channel = self.bot.get_channel(self.config.logs_channel)
-        embed = discord.Embed(title="CSGO Tracker", description=f"```{description}```")
-        embed.set_thumbnail(url=self.config.csgo_tracker_logo)
-        embed.set_footer(text=f"CSGO Tracker • discord.gg/kws", icon_url=self.config.csgo_tracker_logo)
-        embed.timestamp = self.datetime_helper.get_current_timestamp()
-        await channel.send(embed=embed)
-
-    # Function to dm user by id
-    async def dm_user(self, userid: int, message: str):
-        dm_user = await self.bot.fetch_user(userid)
-        await dm_user.send(message)
-
-    # Function to dm every guild owner
-    async def dm_guild_owners(self, message: str):
-        for guild in self.bot.guilds:
-            owner = guild.owner
-            await owner.send(message)
-            asyncio.sleep(4)
-
     # Function to log messages to the console
     def log(self, type, message):
         color = self.log_types[type]
         now = datetime.now()
         current_time = now.strftime("%d/%m/%Y • %H:%M:%S")
         print(f"{Style.DIM}{current_time} • {Style.RESET_ALL}{Style.BRIGHT}{color}[{Style.RESET_ALL}{type}{Style.BRIGHT}{color}] {Style.RESET_ALL}{Style.BRIGHT}{Fore.WHITE}{message}")
+
+    # Function to send logs to the discord channel
+    async def discord_log(self, description: str):
+        channel = self.bot.get_channel(self.config.logs_channel)
+        if channel:
+            embed = discord.Embed(title="CSGO Tracker", description=f"```{description}```")
+            embed.set_thumbnail(url=self.config.csgo_tracker_logo)
+            embed.set_footer(text=f"CSGO Tracker • discord.gg/kws", icon_url=self.config.csgo_tracker_logo)
+            embed.timestamp = self.datetime_helper.get_current_timestamp()
+            await channel.send(embed=embed)
+        else:
+            self.log("ERROR", f"Could not find the logs channel with id {self.config.logs_channel}")
+
+    # Function to dm user by id
+    async def dm_user(self, userid: int, message: str):
+        dm_user = await self.bot.fetch_user(userid)
+        if dm_user:
+            await dm_user.send(message)
+        else:
+            self.log("ERROR", f"Could not find the user with id {userid}")
+            await self.discord_log(f"Could not find the user with id {userid}")
+
+    # Function to dm every guild owner
+    async def dm_guild_owners(self, message: str):
+        for guild in self.bot.guilds:
+            owner = guild.owner
+            if owner:
+                await owner.send(message)
+                asyncio.sleep(4)
+            else:
+                self.log("ERROR", f"Could not find the owner of the guild with id {guild.id}")
+                await self.discord_log(f"Could not find the owner of the guild with id {guild.id}")
