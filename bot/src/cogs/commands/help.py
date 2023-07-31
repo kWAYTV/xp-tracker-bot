@@ -7,8 +7,8 @@ from src.helper.datetime import DateTime
 
 commands_text = f"""
 **🌎 Main Commands**
-  > - */ping* - Test the bot latency and response.
   > - */help* - Show this help message.
+  > - */ping* - Test the bot latency and response.
 
 **👤 Profile Checker Commands**
   > - */check* - Add some steam profile to the queue to be profile-checked.
