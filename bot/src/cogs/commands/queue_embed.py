@@ -17,11 +17,12 @@ class QueueEmbed(commands.Cog):
     @app_commands.command(name="queue_embed", description="Creates and sets the queue embed in the current channel.")
     @app_commands.checks.has_permissions(administrator=True)
     @app_commands.guilds(Config().dev_guild_id)
+    @app_commands.guild_only()
     async def queue_embed_command(self, interaction: discord.Interaction):
         await interaction.response.defer()
 
         if not self.config.queue_embed_switch:
-            return await interaction.followup.send("{self.config.red_cross_emoji_id} Queue embed is disabled in the config! Enable it and restart the bot.", ephemeral=True)
+            return await interaction.followup.send(f"{self.config.red_cross_emoji_id} Queue embed is disabled in the config! Enable it and restart the bot.", ephemeral=True)
         
         embed = discord.Embed(title="📝 CSGO Queue.", color=0xb34760)
         embed.set_footer(text="CSGO Tracker • discord.gg/kws", icon_url=self.config.csgo_tracker_logo)

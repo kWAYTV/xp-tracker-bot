@@ -17,6 +17,7 @@ class LeaderboardEmbed(commands.Cog):
     @app_commands.command(name="leaderboard_embed", description="Creates and sets the leaderboard embed in the current channel.")
     @app_commands.checks.has_permissions(administrator=True)
     @app_commands.guilds(Config().dev_guild_id)
+    @app_commands.guild_only()
     async def leaderboard_embed_command(self, interaction: discord.Interaction):
         await interaction.response.defer()
 

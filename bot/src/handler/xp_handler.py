@@ -83,7 +83,7 @@ class XpHandler:
         amount = len(users)
         self.logger.log("INFO", f"Checking xp for {amount} users.")
         for user in users:
-            for i in range(3):
+            for i in range(2):
                 try:
                     if not self.guild_manager.guild_exists(user.guild_id):
                         await self.logger.dm_user(user.discord_id, f"Removing {user.steam_id} ({user.discord_id}) from database because outdated guild id or channel id.")
@@ -110,4 +110,4 @@ class XpHandler:
                     self.logger.log("ERROR", f"Error checking tracking: {e}")
                     continue
                 break
-            await asyncio.sleep(5)
+            await asyncio.sleep(4)
