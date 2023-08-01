@@ -46,49 +46,63 @@ class XpHandler:
     # Function to send an update to the tracker channel
     async def send_update(self, tracker_channel, user, level, xp, remaining_xp, percentage, earned_xp):
 
-        name = str(user.steam_id)
-        avatar = None
+        try:
 
-        # Get user info
-        success, steamid64, name, avatar = self.checker.get_persona(user.steam_id)
+            name = str(user.steam_id)
+            avatar = None
 
-        # Set bot icon as avatar if it's None
-        if avatar is None:
-            avatar = self.config.csgo_tracker_logo
-        
-        # If the xp changed, send an update
-        embed = discord.Embed(title=f"`{name}`'s XP Change detected!", url=f"https://steamcommunity.com/profiles/{user.steam_id}", color=0x08dbf8c)
+            # Get user info
+            success, steamid64, name, avatar = self.checker.get_persona(user.steam_id)
 
-        embed.set_author(name=f"XP Tracker", icon_url=self.config.csgo_tracker_logo, url="https://kwayservices.top")
-        embed.add_field(name=f"{self.config.arrow_green_emoji_id} Level", value=f"`{level}` `({percentage})`", inline=True)
-        embed.add_field(name=f"{self.config.arrow_blue_emoji_id} XP Earned ", value=f"`{earned_xp}`", inline=True)
-        embed.add_field(name=f"{self.config.arrow_purple_emoji_id} XP Remaining", value=f"`{remaining_xp}`", inline=True)
+            # Set bot icon as avatar if it's None
+            if avatar is None:
+                avatar = self.config.csgo_tracker_logo
+            
+            # If the xp changed, send an update
+            embed = discord.Embed(title=f"`{name}`'s XP Change detected!", url=f"https://steamcommunity.com/profiles/{user.steam_id}", color=0x08dbf8c)
+            embed.set_author(name=f"XP Tracker", icon_url=self.config.csgo_tracker_logo, url="https://kwayservices.top")
 
-        embed.set_thumbnail(url=avatar)
-        embed.set_footer(text=f"CSGO Tracker", icon_url=self.config.csgo_tracker_logo)
-        embed.timestamp = self.datetime_helper.get_current_timestamp()
+            # Set fields
+            embed.add_field(name=f"{self.config.arrow_green_emoji_id} Level", value=f"`{level}` `({percentage})`", inline=True)
+            embed.add_field(name=f"{self.config.arrow_blue_emoji_id} XP Earned ", value=f"`{earned_xp}`", inline=True)
+            embed.add_field(name=f"{self.config.arrow_purple_emoji_id} XP Remaining", value=f"`{remaining_xp}`", inline=True)
 
-        send_to = self.bot.get_channel(int(tracker_channel))
-        await send_to.send(embed=embed)
+            # Set the last data
+            embed.set_thumbnail(url=avatar)
+            embed.set_footer(text=f"CSGO Tracker", icon_url=self.config.csgo_tracker_logo)
+            embed.timestamp = self.datetime_helper.get_current_timestamp()
+
+            # Send the embed
+            send_to = self.bot.get_channel(int(tracker_channel))
+            await send_to.send(embed=embed)
+
+        except Exception as e:
+            self.logger.log("ERROR", f"Error while sending update: {e}")
+            await self.logger.discord_log(f"Error while sending update: {e}")
 
     # Function to track the given user
     async def track_user(self, user):
         try:
+        
+            # Check if guild exists
             if not self.guild_manager.guild_exists(user.guild_id):
                 try:
-                    await self.logger.dm_user(user.discord_id, f"Removing {user.steam_id} ({user.discord_id}) from database because outdated guild id or channel id.")
-                except:
-                    pass
-                self.logger.log("WARNING", f"Removing {user.steam_id} ({user.discord_id}) from database because outdated guild id or channel id.")
-                await self.logger.discord_log(f"Removing {user.steam_id} ({user.discord_id}) from database because outdated guild id or channel id.")
-                self.database.remove_user(user)
-                return
+                    self.database.remove_user(user)
+                    await self.logger.dm_user(user.discord_id, f"Removed {user.steam_id} ({user.discord_id}) from database because outdated guild id or channel id.")
+                    self.logger.log("WARNING", f"Removed {user.steam_id} ({user.discord_id}) from database because outdated guild id or channel id.")
+                    return await self.logger.discord_log(f"Removed {user.steam_id} ({user.discord_id}) from database because outdated guild id or channel id.")
+                except Exception as e:
+                    self.logger.log("ERROR", f"Error while removing user {user.steam_id} ({user.discord_id}) from database (outdated guild): {e}")
+                    return await self.logger.discord_log(f"Error while removing user {user.steam_id} ({user.discord_id}) from database (outdated guild): {e}")
 
+            # Get the tracker channel and the user xp data
             tracker_channel = await self.guild_manager.get_channel_by_guild(user.guild_id)
             new_level, new_xp, remaining_xp, percentage = await self.get_user_level_and_xp(user.steam_id)
 
+            # Level up checks
             if new_level > user.current_level:  # Level up case
                 earned_xp = new_xp
+                # If user has reached the maximum level, notify him
                 if new_level >= 40:
                     try:
                         await self.logger.dm_user(user.discord_id, "You have reached the maximum level (40). Claim your medal!")
@@ -100,21 +114,27 @@ class XpHandler:
             else:
                 earned_xp = new_xp - user.current_xp
 
+            # Update the user data
+            total_monthly, total_global = user.total_earned + earned_xp, user.global_earned + earned_xp
+            self.database.update_user_level_and_xp(user.steam_id, new_level, new_xp, total_monthly, total_global)
+            self.logger.log("XP", f"Changed: {user.steam_id} • Level: {new_level} • XP: {new_xp} • Total: {total_monthly} • Global: {total_global} • User: {user.discord_id} • Guild: {user.guild_id}")
+
+            # Send an update if the user has updated
             if user.has_updated(new_level, new_xp):
                 await self.send_update(tracker_channel, user, new_level, new_xp, remaining_xp, percentage, earned_xp)
-                total_monthly, total_global = user.total_earned + earned_xp, user.global_earned + earned_xp
-                self.database.update_user_level_and_xp(user.steam_id, new_level, new_xp, total_monthly, total_global)
-                self.logger.log("XP", f"Updating {user.steam_id} • Level {new_level} • XP {new_xp} • Total: {total_monthly} • Global: {total_global} • User: {user.discord_id} ({user.guild_id})")
 
         except Exception as e:
             self.logger.log("ERROR", f"Error checking {user.steam_id} ({user.discord_id}) tracking: {e}")
 
     # Loop to track users xp and level from database
     async def check_tracking(self):
+
+        # Check if it's day 1 and the month earnings should be reset
         if self.database.should_reset():
             self.database.reset_total_earned()
             self.logger.log("INFO", "Resetting total earned xp for all users.")
 
+        # Get all users and check them
         users = self.database.get_users()
         self.logger.log("INFO", f"Checking xp for {len(users)} users.")
         for user in users:
