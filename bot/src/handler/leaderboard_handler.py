@@ -46,6 +46,7 @@ class LeaderboardHandler:
         embed.set_author(name=f"Tracker", icon_url=self.config.csgo_tracker_logo, url="https://kwayservices.top")
         embed.set_footer(text=f"Top 10 • Last updated: {self.datetime_helper.get_current_timestamp().strftime('%H:%M:%S')}", icon_url=self.config.csgo_tracker_logo)
         embed.set_thumbnail(url=self.config.csgo_tracker_logo)
+        embed.set_image(url=self.config.rainbow_line_gif)
 
         # Edit the message
         await leaderboard_message.edit(embed=embed)

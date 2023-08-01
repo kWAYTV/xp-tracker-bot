@@ -102,6 +102,7 @@ class AddUser(commands.Cog):
         embed.add_field(name="Current XP", value=f"`{xp}`", inline=True)
 
         embed.set_footer(text=f"CSGO Tracker • Requested by {username}", icon_url=self.config.csgo_tracker_logo)
+        embed.set_image(url=self.config.rainbow_line_gif)
         embed.timestamp = self.datetime_helper.get_current_timestamp()
 
         # Edit the message with the embed and log it

@@ -107,6 +107,7 @@ class QueueHandler:
         embed = discord.Embed(title="📝 CSGO Queue.", description=description, color=0xb34760)
         embed.set_footer(text=f"Total: {length} • Last updated: {self.datetime_helper.get_current_timestamp().strftime('%H:%M:%S')}", icon_url=self.config.csgo_tracker_logo)
         embed.set_thumbnail(url=self.config.csgo_tracker_logo)
+        embed.set_image(url=self.config.rainbow_line_gif)
 
         # Edit the message
         await queue_message.edit(embed=embed)

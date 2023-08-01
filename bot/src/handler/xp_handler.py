@@ -69,6 +69,7 @@ class XpHandler:
 
             # Set the last data
             embed.set_thumbnail(url=avatar)
+            embed.set_image(url=self.config.rainbow_line_gif)
             embed.set_footer(text=f"CSGO Tracker", icon_url=self.config.csgo_tracker_logo)
             embed.timestamp = self.datetime_helper.get_current_timestamp()
 
@@ -117,11 +118,11 @@ class XpHandler:
             # Update the user data
             total_monthly, total_global = user.total_earned + earned_xp, user.global_earned + earned_xp
             self.database.update_user_level_and_xp(user.steam_id, new_level, new_xp, total_monthly, total_global)
-            self.logger.log("XP", f"Changed: {user.steam_id} • Level: {new_level} • XP: {new_xp} • Total: {total_monthly} • Global: {total_global} • User: {user.discord_id} • Guild: {user.guild_id}")
 
             # Send an update if the user has updated
             if user.has_updated(new_level, new_xp):
                 await self.send_update(tracker_channel, user, new_level, new_xp, remaining_xp, percentage, earned_xp)
+                self.logger.log("XP", f"Changed: {user.steam_id} • Level: {new_level} • XP: {new_xp} • Total: {total_monthly} • Global: {total_global} • User: {user.discord_id} • Guild: {user.guild_id}")
 
         except Exception as e:
             self.logger.log("ERROR", f"Error checking {user.steam_id} ({user.discord_id}) tracking: {e}")
@@ -137,6 +138,8 @@ class XpHandler:
         # Get all users and check them
         users = self.database.get_users()
         self.logger.log("INFO", f"Checking xp for {len(users)} users.")
+        
+        # Check the users
         for user in users:
             for _ in range(2):
                 await self.track_user(user)

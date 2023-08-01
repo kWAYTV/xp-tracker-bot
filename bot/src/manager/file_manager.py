@@ -70,7 +70,7 @@ faceit_emoji_id:
 faceit_api_key: 
 
 # XP Tracker
-# XP Tracker interval (in seconds) (recommended: 452)
+# XP Tracker interval (in minutes) (recommended: 6-7)
 checker_interval: 452
 # Discord channel id where the bot will send the xp tracker messages
 discord_tracker_channel_id: 

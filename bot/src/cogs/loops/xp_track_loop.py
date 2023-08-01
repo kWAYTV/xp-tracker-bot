@@ -13,7 +13,7 @@ class XpTrackLoop(commands.Cog):
         self.xp_handler = XpHandler(self.bot)
 
     # Check xp
-    @tasks.loop(seconds=Config().checker_interval)
+    @tasks.loop(minutes=Config().checker_interval)
     async def xp_track(self):
         await self.xp_handler.check_tracking()
 

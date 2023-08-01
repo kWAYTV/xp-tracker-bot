@@ -78,6 +78,7 @@ class RemoveUser(commands.Cog):
 
         embed.set_author(name=f"Tracker", icon_url=self.config.csgo_tracker_logo, url="https://kwayservices.top")
         embed.set_thumbnail(url=avatar)
+        embed.set_image(url=self.config.rainbow_line_gif)
         embed.add_field(name="SteamID64", value=f"`{steamid64}`", inline=True)
 
         embed.set_footer(text=f"CSGO Tracker • Requested by {username}", icon_url=self.config.csgo_tracker_logo)

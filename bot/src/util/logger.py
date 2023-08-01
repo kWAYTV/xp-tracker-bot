@@ -43,6 +43,7 @@ class Logger:
         if channel:
             embed = discord.Embed(title="CSGO Tracker", description=f"```{description}```")
             embed.set_thumbnail(url=self.config.csgo_tracker_logo)
+            embed.set_image(url=self.config.rainbow_line_gif)
             embed.set_footer(text=f"CSGO Tracker • discord.gg/kws", icon_url=self.config.csgo_tracker_logo)
             embed.timestamp = self.datetime_helper.get_current_timestamp()
             await channel.send(embed=embed)

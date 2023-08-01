@@ -14,6 +14,9 @@ class Config:
         # Bot logo
         self.csgo_tracker_logo = "https://i.imgur.com/SdE6a8S.png"
 
+        # Rainbow line gif
+        self.rainbow_line_gif = "https://i.imgur.com/mnydyND.gif"
+
         # Discord
         self.discord_token = self.config["discord_token"]
         self.bot_prefix = self.config["bot_prefix"]

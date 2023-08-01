@@ -39,5 +39,5 @@ class MedalHandler:
                     os.unlink(file_path)
             except Exception as e:
                 self.logger.log("WARNING", f"Failed to delete {file_path}. Reason: {e}")
-        self.logger.log("INFO", f"Successfully deleted all the possible images in {self.base_dir}")
+        self.logger.log("INFO", f"Successfully deleted all the residual images.")
         return True

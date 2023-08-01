@@ -70,6 +70,7 @@ class ChangeUserGuild(commands.Cog):
         embed.add_field(name="Guild ID", value=f"`{guild.id}`", inline=True)
 
         embed.set_footer(text=f"CSGO Tracker • Requested by {username}", icon_url=self.config.csgo_tracker_logo)
+        embed.set_image(url=self.config.rainbow_line_gif)
         embed.timestamp = self.datetime_helper.get_current_timestamp()
 
         await changing_message.edit(content=f"{self.config.green_tick_emoji_id} Request completed.", embed=embed)

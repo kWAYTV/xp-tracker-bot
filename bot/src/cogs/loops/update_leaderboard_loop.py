@@ -12,7 +12,7 @@ class UpdateLeaderboardLoop(commands.Cog):
         self.leaderboard_handler = LeaderboardHandler(bot)
 
     # Update leaderboard embed message
-    @tasks.loop(seconds=Config().checker_interval)  # you can change this to any value you like
+    @tasks.loop(seconds=Config().update_embeds_delay)  # you can change this to any value you like
     async def update_leaderboard_embed(self):
         await self.leaderboard_handler.update_leaderboard_embed()
 
