@@ -71,43 +71,54 @@ class XpHandler:
         send_to = self.bot.get_channel(int(tracker_channel))
         await send_to.send(embed=embed)
 
+    # Function to track the given user
+    async def track_user(self, user):
+        try:
+            if not self.guild_manager.guild_exists(user.guild_id):
+                try:
+                    await self.logger.dm_user(user.discord_id, f"Removing {user.steam_id} ({user.discord_id}) from database because outdated guild id or channel id.")
+                except:
+                    pass
+                self.logger.log("WARNING", f"Removing {user.steam_id} ({user.discord_id}) from database because outdated guild id or channel id.")
+                await self.logger.discord_log(f"Removing {user.steam_id} ({user.discord_id}) from database because outdated guild id or channel id.")
+                self.database.remove_user(user)
+                return
+
+            tracker_channel = await self.guild_manager.get_channel_by_guild(user.guild_id)
+            new_level, new_xp, remaining_xp, percentage = await self.get_user_level_and_xp(user.steam_id)
+
+            if new_level > user.current_level:  # Level up case
+                earned_xp = new_xp
+                if new_level >= 40:
+                    try:
+                        await self.logger.dm_user(user.discord_id, "You have reached the maximum level (40). Claim your medal!")
+                        self.logger.log("INFO", f"User {user.steam_id} ({user.discord_id}) has reached the maximum level (40).")
+                        await self.logger.discord_log(f"User {user.steam_id} ({user.discord_id}) has reached the maximum level (40).")
+                    except:
+                        self.logger.log("INFO", f"User {user.steam_id} ({user.discord_id}) has reached the maximum level (40) but couldn't be notified.")
+                        await self.logger.discord_log(f"User {user.steam_id} ({user.discord_id}) has reached the maximum level (40) but couldn't be notified.")
+            else:
+                earned_xp = new_xp - user.current_xp
+
+            if user.has_updated(new_level, new_xp):
+                await self.send_update(tracker_channel, user, new_level, new_xp, remaining_xp, percentage, earned_xp)
+                total_monthly, total_global = user.total_earned + earned_xp, user.global_earned + earned_xp
+                self.database.update_user_level_and_xp(user.steam_id, new_level, new_xp, total_monthly, total_global)
+                self.logger.log("XP", f"Updating {user.steam_id} • Level {new_level} • XP {new_xp} • Total: {total_monthly} • Global: {total_global} • User: {user.discord_id} ({user.guild_id})")
+
+        except Exception as e:
+            self.logger.log("ERROR", f"Error checking {user.steam_id} ({user.discord_id}) tracking: {e}")
+
     # Loop to track users xp and level from database
     async def check_tracking(self):
-
         if self.database.should_reset():
-            actual_month = datetime.today().month
-            self.database.reset_total_earned(actual_month)
+            self.database.reset_total_earned()
             self.logger.log("INFO", "Resetting total earned xp for all users.")
 
         users = self.database.get_users()
-        amount = len(users)
-        self.logger.log("INFO", f"Checking xp for {amount} users.")
+        self.logger.log("INFO", f"Checking xp for {len(users)} users.")
         for user in users:
-            for i in range(2):
-                try:
-                    if not self.guild_manager.guild_exists(user.guild_id):
-                        await self.logger.dm_user(user.discord_id, f"Removing {user.steam_id} ({user.discord_id}) from database because outdated guild id or channel id.")
-                        self.logger.log("WARNING", f"Removing {user.steam_id} ({user.discord_id}) from database because outdated guild id or channel id.")
-                        await self.logger.discord_log(f"Removing {user.steam_id} ({user.discord_id}) from database because outdated guild id or channel id.")
-                        self.database.remove_user(user)
-                        break
-                    tracker_channel = await self.guild_manager.get_channel_by_guild(user.guild_id)
-                    new_level, new_xp, remaining_xp, percentage = await self.get_user_level_and_xp(user.steam_id)
-                    if new_level > user.current_level:  # Level up case
-                        earned_xp = new_xp
-                        if new_level >= 40:
-                            await self.logger.dm_user(user.discord_id, "You have reached the maximum level (40). Claim your medal!")
-                            self.logger.log("INFO", f"User {user.steam_id} ({user.discord_id}) has reached the maximum level (40).")
-                            await self.logger.discord_log(f"User {user.steam_id} ({user.discord_id}) has reached the maximum level (40).")
-                    else:
-                        earned_xp = new_xp - user.current_xp
-                    if user.has_updated(new_level, new_xp):
-                        await self.send_update(tracker_channel, user, new_level, new_xp, remaining_xp, percentage, earned_xp)
-                        total_monthly, total_global = user.total_earned + earned_xp, user.global_earned + earned_xp
-                        self.database.update_user_level_and_xp(user.steam_id, new_level, new_xp, total_monthly, total_global)
-                        self.logger.log("XP", f"Updating {user.steam_id} to level {new_level} and xp {new_xp}. Total earned: {total_monthly} Global earned: {total_global} Guild: {user.guild_id}")
-                except Exception as e:
-                    self.logger.log("ERROR", f"Error checking tracking: {e}")
-                    continue
+            for _ in range(2):
+                await self.track_user(user)
                 break
             await asyncio.sleep(4)

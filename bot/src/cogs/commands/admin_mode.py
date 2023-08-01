@@ -26,7 +26,7 @@ class AdminModeCommand(commands.Cog):
         await interaction.response.defer(ephemeral=hidden)
 
         # Clean the username
-        username = await self.utils.clean_discord_username(f"{username}")
+        username = await self.utils.clean_discord_username(f"{interaction.user.name}#{interaction.user.discriminator}")
 
         request_message = await interaction.followup.send(f"{self.config.loading_green_emoji_id} Trying to set admin mode to `{switch}`.", ephemeral=hidden)
 

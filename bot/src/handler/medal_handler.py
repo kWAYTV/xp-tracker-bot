@@ -12,7 +12,7 @@ class MedalHandler:
         if not os.path.isfile(path):
             self.logger.log("WARNING", f"Image {image_name}.png does not exist at the expected location.")
             return None
-        self.logger.log("INFO", f"Getting image path for {image_name}.png")
+        self.logger.log("INFO", f"Got image path for {image_name}.png")
         return path
     
     # Function to delete a medal image
@@ -39,5 +39,5 @@ class MedalHandler:
                     os.unlink(file_path)
             except Exception as e:
                 self.logger.log("WARNING", f"Failed to delete {file_path}. Reason: {e}")
-        self.logger.log("WARNING", f"Successfully deleted all the possible images in {self.base_dir}")
+        self.logger.log("INFO", f"Successfully deleted all the possible images in {self.base_dir}")
         return True

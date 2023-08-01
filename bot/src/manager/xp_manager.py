@@ -129,9 +129,9 @@ class XpManager:
     def get_users_sorted_by_total_earned(self):
         with self.connection:
             cursor = self.connection.cursor()
-            cursor.execute("SELECT steam_id, total_earned FROM tracking ORDER BY total_earned DESC")
+            cursor.execute("SELECT steam_id, total_earned, global_earned FROM tracking ORDER BY total_earned DESC")
             rows = cursor.fetchall()
-        return rows  # this will be a list of tuples, where each tuple is (discord_id, total_earned)
+        return rows  # this will be a list of tuples, where each tuple is (discord_id, total_earned, global_earned)
 
     # Function to check if reset_month has been set, otherwise set it to the current month
     def check_reset_month(self):

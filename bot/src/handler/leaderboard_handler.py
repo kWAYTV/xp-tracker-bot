@@ -32,12 +32,12 @@ class LeaderboardHandler:
 
         # Set the embed description
         if length > 0:
-            description = "`Name`/`Earned`\n"
+            description = "`User`/`Month earned`/`Global earned`\n\n"
             for index, user in enumerate(data[:10], start=1): # Only show the top 10, start index at 1
-                steamid64, total_earned = user[0], user[1]
+                steamid64, total_earned, global_earned = user[0], user[1], user[2]
                 # Get user info
                 success, steam64id, name, avatar = self.checker.get_persona(steamid64)
-                description = description + f" > **{index}**. {name} • `{total_earned}`\n"
+                description = description + f" > **{index}**. `{name}` • `{total_earned} XP` • `{global_earned} XP`\n"
         else:
             description = f"{self.config.discord_emoji_id} There's no people in the leaderboard."
 
