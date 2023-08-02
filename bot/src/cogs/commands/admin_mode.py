@@ -12,6 +12,7 @@ class AdminModeCommand(commands.Cog):
         self.bot = bot
         self.utils = Utils()
         self.config = Config()
+        self.logger = Logger(bot)
         self.datetime_helper = DateTime()
         self.admin_mode_manager = AdminModeManager()
 
@@ -21,6 +22,7 @@ class AdminModeCommand(commands.Cog):
         switch="If the admin mode should be enabled or disabled.",
         hidden="If the command should be hidden from other users or not."
     )
+    @app_commands.checks.has_permissions(administrator=True)
     @app_commands.guild_only()
     async def admin_mode_command(self, interaction: discord.Interaction, switch: bool, hidden: bool = True):
         await interaction.response.defer(ephemeral=hidden)
@@ -32,12 +34,6 @@ class AdminModeCommand(commands.Cog):
 
         self.logger.log("INFO", f"✅ Admin mode has been requested to be set to `{switch}` on the guild {interaction.guild_id} ({interaction.guild.name}).")
         await self.logger.discord_log(f"✅ {username} requested to set the admin mode to `{switch}` on the guild {interaction.guild_id} ({interaction.guild.name}).")
-
-        # Check if the user has permissions to use this command
-        if not interaction.member.guild_permissions.administrator:
-            self.logger.log("INFO", f"❌ {username} tried to use the admin mode command on the guild {interaction.guild_id} ({interaction.guild.name}), but doesn't have permissions to do so.")
-            await self.logger.discord_log(f"❌ {username} tried to use the admin mode command on the guild {interaction.guild_id} ({interaction.guild.name}), but doesn't have permissions to do so.")
-            return await request_message.edit(content=f"{self.config.red_cross_emoji_id} You don't have permissions to use this command.")
         
         # Check if the admin mode is already added, if not, add it.
         if self.admin_mode_manager.get_admin_mode(interaction.guild_id) is None:

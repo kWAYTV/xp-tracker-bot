@@ -1,5 +1,4 @@
 import requests, discord, asyncio
-from datetime import datetime
 from discord.ext import commands
 from src.util.logger import Logger
 from src.helper.config import Config
@@ -19,6 +18,36 @@ class XpHandler:
         self.session = requests.Session()
         self.guild_manager = GuildManager()
         self.session.headers.update({"User-Agent": "kWS-Auth"})
+
+    # Function to create level progress bar
+    @staticmethod
+    def create_progress_bar(remaining_xp, total_xp=5000, bar_length=20):
+        progress = (total_xp - remaining_xp) / total_xp
+        filled_length = int(bar_length * progress)
+        bar = '▓' * filled_length + '░' * (bar_length - filled_length)
+        return bar
+
+    # Function to get the time remaining for level 40
+    def get_time_remaining_for_40(self, current_level, current_level_xp, average_xp_per_game=117):
+        remaining_levels = 40 - current_level
+        total_xp_required_for_remaining_levels = remaining_levels * 5000
+        remaining_xp_for_current_level = 5000 - current_level_xp
+        total_xp_required = total_xp_required_for_remaining_levels + remaining_xp_for_current_level
+        total_games_required = total_xp_required / average_xp_per_game
+        remaining_time_in_minutes = total_games_required * 420 / 60
+
+        days, remainder_minutes = divmod(remaining_time_in_minutes, 1440) # 1440 minutes in a day
+        hours, minutes = divmod(remainder_minutes, 60) # 60 minutes in an hour
+
+        time_string = ""
+        if days > 0:
+            time_string += f"{int(days)} day(s) "
+        if hours > 0:
+            time_string += f"{int(hours)} hour(s) "
+        if minutes > 0:
+            time_string += f"{int(minutes)} minute(s)"
+
+        return time_string.strip(), f"{total_games_required:.2f}"
 
     # Function to get the user level and xp
     async def get_user_level_and_xp(self, id):
@@ -44,7 +73,7 @@ class XpHandler:
         return current_level, current_xp, remaining_xp, percentage
 
     # Function to send an update to the tracker channel
-    async def send_update(self, tracker_channel, user, level, xp, remaining_xp, percentage, earned_xp):
+    async def send_update(self, tracker_channel, user, new_level, remaining_xp, percentage, earned_xp, total_monthly):
 
         try:
 
@@ -53,6 +82,8 @@ class XpHandler:
 
             # Get user info
             success, steamid64, name, avatar = self.checker.get_persona(user.steam_id)
+            xp_bar = self.create_progress_bar(remaining_xp)
+            time_for_40, games_required = self.get_time_remaining_for_40(new_level, remaining_xp)
 
             # Set bot icon as avatar if it's None
             if avatar is None:
@@ -63,14 +94,20 @@ class XpHandler:
             embed.set_author(name=f"XP Tracker", icon_url=self.config.csgo_tracker_logo, url="https://kwayservices.top")
 
             # Set fields
-            embed.add_field(name=f"{self.config.arrow_green_emoji_id} Level", value=f"`{level}` `({percentage})`", inline=True)
+            embed.add_field(name=f"{self.config.arrow_green_emoji_id} Level", value=f"`{new_level}` `({percentage})`", inline=True)
             embed.add_field(name=f"{self.config.arrow_blue_emoji_id} XP Earned ", value=f"`{earned_xp}`", inline=True)
             embed.add_field(name=f"{self.config.arrow_purple_emoji_id} XP Remaining", value=f"`{remaining_xp}`", inline=True)
+
+            # Add progress bar & time for 40
+            embed.add_field(name=f"{self.config.arrow_pink_emoji_id} Games remaining", value=f"`{games_required} games`", inline=True)
+            embed.add_field(name=f"{self.config.arrow_white_emoji_id} Time remaining", value=f"`{time_for_40}`", inline=True)
+            embed.add_field(name=f"{self.config.arrow_yellow_emoji_id} Monthly XP", value=f"`{total_monthly}`", inline=True)
+            embed.add_field(name=f"{self.config.green_tick_emoji_id} XP Progress", value=f"`{xp_bar} ({percentage})`", inline=True)
 
             # Set the last data
             embed.set_thumbnail(url=avatar)
             embed.set_image(url=self.config.rainbow_line_gif)
-            embed.set_footer(text=f"CSGO Tracker", icon_url=self.config.csgo_tracker_logo)
+            embed.set_footer(text=f"CSGO Tracker • Warning! The weekly xp bonus is not considered.", icon_url=self.config.csgo_tracker_logo)
             embed.timestamp = self.datetime_helper.get_current_timestamp()
 
             # Send the embed
@@ -78,8 +115,8 @@ class XpHandler:
             await send_to.send(embed=embed)
 
         except Exception as e:
-            self.logger.log("ERROR", f"Error while sending update: {e}")
-            await self.logger.discord_log(f"Error while sending update: {e}")
+            self.logger.log("ERROR", f"While sending update: {e}")
+            await self.logger.discord_log(f"While sending update: {e}")
 
     # Function to track the given user
     async def track_user(self, user):
@@ -121,7 +158,7 @@ class XpHandler:
 
             # Send an update if the user has updated
             if user.has_updated(new_level, new_xp):
-                await self.send_update(tracker_channel, user, new_level, new_xp, remaining_xp, percentage, earned_xp)
+                await self.send_update(tracker_channel, user, new_level, remaining_xp, percentage, earned_xp, total_monthly)
                 self.logger.log("XP", f"Changed: {user.steam_id} • Level: {new_level} • XP: {new_xp} • Total: {total_monthly} • Global: {total_global} • User: {user.discord_id} • Guild: {user.guild_id}")
 
         except Exception as e:
@@ -141,7 +178,5 @@ class XpHandler:
         
         # Check the users
         for user in users:
-            for _ in range(2):
-                await self.track_user(user)
-                break
-            await asyncio.sleep(4)
+            await self.track_user(user)
+            await asyncio.sleep(3)

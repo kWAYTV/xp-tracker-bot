@@ -26,7 +26,7 @@ class AddUser(commands.Cog):
         self.admin_mode_manager = AdminModeManager()
 
     # Add user command  
-    @app_commands.command(name="add_user", description="Add an user to the xp tracker database.")
+    @app_commands.command(name="add_user", description="Add a user to the xp tracker database.")
     @app_commands.describe(
         id="The steamid64/vanity/profile url of the user you want to start to track.",
         hidden="If the command should be hidden from other users or not."
