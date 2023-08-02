@@ -27,27 +27,44 @@ class XpHandler:
         bar = '▓' * filled_length + '░' * (bar_length - filled_length)
         return bar
 
-    # Function to get the time remaining for level 40
-    def get_time_remaining_for_40(self, current_level, current_level_xp, average_xp_per_game=117):
-        remaining_levels = 40 - current_level
-        total_xp_required_for_remaining_levels = remaining_levels * 5000
-        remaining_xp_for_current_level = 5000 - current_level_xp
-        total_xp_required = total_xp_required_for_remaining_levels + remaining_xp_for_current_level
-        total_games_required = total_xp_required / average_xp_per_game
-        remaining_time_in_minutes = total_games_required * 420 / 60
+    # Function to calculate games to level up
+    def calculate_games_to_level_up(self, current_xp, required_xp, average_xp_per_game):
+        # Calculating the total XP needed to reach the next level
+        xp_needed = required_xp - current_xp
 
-        days, remainder_minutes = divmod(remaining_time_in_minutes, 1440) # 1440 minutes in a day
-        hours, minutes = divmod(remainder_minutes, 60) # 60 minutes in an hour
+        # Calculating the number of games needed to level up
+        games_needed = xp_needed / average_xp_per_game
 
-        time_string = ""
-        if days > 0:
-            time_string += f"{int(days)} day(s) "
-        if hours > 0:
-            time_string += f"{int(hours)} hour(s) "
-        if minutes > 0:
-            time_string += f"{int(minutes)} minute(s)"
+        return games_needed
 
-        return time_string.strip(), f"{total_games_required:.2f}"
+    # Function to calculate the expected time to level up
+    def calculate_expected_time(self, games_needed, average_game_duration_minutes):
+        # Calculating the expected time in minutes
+        expected_time_minutes = games_needed * average_game_duration_minutes
+
+        # Calculating the expected time in hours
+        expected_time_hours = expected_time_minutes / 60
+
+        # Leave only 2 decimal places and return the result
+        return round(expected_time_hours, 2)
+
+    # Function to format the remaining time
+    def format_remaining_time(self, total_hours):
+        # Convert to days, hours, and minutes
+        days, remainder_hours = divmod(total_hours, 24)
+        hours, remainder_minutes = divmod(remainder_hours * 60, 60)
+        remainder_minutes = round(remainder_minutes)  # Round to the nearest integer
+
+        # Format the result
+        result = ''
+        if days:
+            result += f'{days} day(s) '
+        if hours or days: # include hours if there are days even if hours is 0
+            result += f'{hours} hour(s) '
+        result += f'{remainder_minutes} minute(s)'
+
+        # Strip any trailing space and return the result
+        return result.strip()
 
     # Function to get the user level and xp
     async def get_user_level_and_xp(self, id):
@@ -82,8 +99,16 @@ class XpHandler:
 
             # Get user info
             success, steamid64, name, avatar = self.checker.get_persona(user.steam_id)
+
+            # Create the progress bar
             xp_bar = self.create_progress_bar(remaining_xp)
-            time_for_40, games_required = self.get_time_remaining_for_40(new_level, remaining_xp)
+
+            # Calculate the remaining games & time
+            games_needed = self.calculate_games_to_level_up(user.current_xp, 5000, 117)
+            expected_time_hours = self.calculate_expected_time(games_needed, 7)
+
+            # Convert the hours to Ex: 1 day(s), 2 hour(s), 3 minute(s) 
+            expected_time = self.format_remaining_time(expected_time_hours)
 
             # Set bot icon as avatar if it's None
             if avatar is None:
@@ -99,10 +124,10 @@ class XpHandler:
             embed.add_field(name=f"{self.config.arrow_purple_emoji_id} XP Remaining", value=f"`{remaining_xp}`", inline=True)
 
             # Add progress bar & time for 40
-            embed.add_field(name=f"{self.config.arrow_pink_emoji_id} Games remaining", value=f"`{games_required} games`", inline=True)
-            embed.add_field(name=f"{self.config.arrow_white_emoji_id} Time remaining", value=f"`{time_for_40}`", inline=True)
+            embed.add_field(name=f"{self.config.arrow_pink_emoji_id} Games remaining", value=f"`{games_needed:.2f} games`", inline=True)
+            embed.add_field(name=f"{self.config.arrow_white_emoji_id} Time remaining", value=f"`{expected_time}`", inline=True)
             embed.add_field(name=f"{self.config.arrow_yellow_emoji_id} Monthly XP", value=f"`{total_monthly}`", inline=True)
-            embed.add_field(name=f"{self.config.green_tick_emoji_id} XP Progress", value=f"`{xp_bar} ({percentage})`", inline=True)
+            embed.add_field(name=f"{self.config.green_tick_emoji_id} Level progress", value=f"`{xp_bar} ({percentage})`", inline=True)
 
             # Set the last data
             embed.set_thumbnail(url=avatar)
