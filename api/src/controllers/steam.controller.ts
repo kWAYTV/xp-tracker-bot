@@ -3,6 +3,7 @@ import {EAuthTokenPlatformType, LoginSession} from 'steam-session';
 import registerCsgoEvents from '../handlers/csgoevent.handler';
 import {insert, select, remove} from './database.controller';
 import {decodeJWT, isExpired} from '../helpers/jwt.helper';
+import {proxyUsage} from '../../configs/default.json';
 import {asyncReadLine} from '../utils/console.util';
 import {getRandomProxy} from '../utils/proxy.util';
 import {SteamData, SteamJWT} from '../types/steam';
@@ -53,15 +54,25 @@ export function startGC(userInstance: SteamUser): void {
 export async function startCSGO(): Promise<void> {
   const username = process.env.STEAM_USERNAME!;
   const password = process.env.STEAM_PASSWORD!;
-  const proxy = getRandomProxy(); // Implement the 'getRandomProxy' function
+  let proxyOpts = {using: false, proxy: ''};
+
+  // Check for proxy usage
+  proxyUsage === true
+    ? (proxyOpts = {using: true, proxy: getRandomProxy()})
+    : (proxyOpts = {using: false, proxy: ''});
 
   try {
     const userData = await select({username: username});
 
     if (!userData) {
       logger.info(`No saved refresh token found for user '${username}'!`);
-      logger.info(`Using proxy: ${proxy}`);
+      if (proxyOpts.using) {
+        logger.info(`Using proxy: ${proxyOpts.proxy}`);
+      }
 
+      logger.info(
+        'Proxy support is DISABLED! To enable it change the default.json config!'
+      );
       const loginSession = new LoginSession(EAuthTokenPlatformType.SteamClient);
 
       try {
@@ -120,7 +131,9 @@ export async function startCSGO(): Promise<void> {
         }
       } else {
         logger.info('Token is still valid! Proceeding with login process!');
-        STEAM.setOption('httpProxy', proxy);
+        if (proxyOpts.using) {
+          STEAM.setOption('httpProxy', proxyOpts.proxy);
+        }
         STEAM.logOn({refreshToken: refreshToken});
       }
     }
