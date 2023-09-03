@@ -21,11 +21,22 @@ class XpHandler:
 
     # Function to create level progress bar
     @staticmethod
-    def create_progress_bar(remaining_xp, total_xp=5000, bar_length=20):
+    def create_per_level_progress_bar(remaining_xp, total_xp=5000, bar_length=12):
         progress = (total_xp - remaining_xp) / total_xp
         filled_length = int(bar_length * progress)
-        bar = '▓' * filled_length + '░' * (bar_length - filled_length)
+        bar = '▰' * filled_length + '▱' * (bar_length - filled_length)
         return bar
+    
+    # Function to create max level progress bar
+    @staticmethod
+    def create_progress_bar_to_40(current_level, current_level_xp, max_level=40, total_xp_per_level=5000, bar_length=12):
+        total_required_xp = max_level * total_xp_per_level
+        total_current_xp = (current_level * total_xp_per_level) + current_level_xp
+        progress = total_current_xp / total_required_xp
+        filled_length = int(bar_length * progress)
+        bar = '▰' * filled_length + '▱' * (bar_length - filled_length)
+        percentage = progress * 100
+        return bar, f"{percentage:.2f} %"
 
     # Function to calculate games to level up
     def calculate_games_to_level_up(self, current_xp, required_xp, average_xp_per_game):
@@ -38,7 +49,7 @@ class XpHandler:
         return games_needed
 
     # Function to calculate the expected time to level up
-    def calculate_expected_time(self, games_needed, average_game_duration_minutes):
+    def calculate_expected_time_to_level_up(self, games_needed, average_game_duration_minutes):
         # Calculating the expected time in minutes
         expected_time_minutes = games_needed * average_game_duration_minutes
 
@@ -53,6 +64,9 @@ class XpHandler:
         # Convert to days, hours, and minutes
         days, remainder_hours = divmod(total_hours, 24)
         hours, remainder_minutes = divmod(remainder_hours * 60, 60)
+
+        days = round(days)  # Round to the nearest integer
+        hours = round(hours)  # Round to the nearest integer
         remainder_minutes = round(remainder_minutes)  # Round to the nearest integer
 
         # Format the result
@@ -100,15 +114,20 @@ class XpHandler:
             # Get user info
             success, steamid64, name, avatar = self.checker.get_persona(user.steam_id)
 
-            # Create the progress bar
-            xp_bar = self.create_progress_bar(remaining_xp)
+            # Create the current level progress bar
+            xp_bar = self.create_per_level_progress_bar(remaining_xp)
 
-            # Calculate the remaining games & time
-            games_needed = self.calculate_games_to_level_up(user.current_xp, 5000, 117)
-            expected_time_hours = self.calculate_expected_time(games_needed, 7)
+            # Create the max level progress bar
+            max_level_xp_bar, max_percentage = self.create_progress_bar_to_40(user.current_level, user.current_xp)
+
+            # Calculate the remaining games & time for the next level
+            games_needed_next_level = self.calculate_games_to_level_up(user.current_xp, 5000, 117)
+            # Round the games needed to the nearest integer
+            games_needed_next_level = round(games_needed_next_level)
+            expected_time_hours_next_level = self.calculate_expected_time_to_level_up(games_needed_next_level, 7)
 
             # Convert the hours to Ex: 1 day(s), 2 hour(s), 3 minute(s) 
-            expected_time = self.format_remaining_time(expected_time_hours)
+            expected_time = self.format_remaining_time(expected_time_hours_next_level)
 
             # Set bot icon as avatar if it's None
             if avatar is None:
@@ -124,10 +143,11 @@ class XpHandler:
             embed.add_field(name=f"{self.config.arrow_purple_emoji_id} XP Remaining", value=f"`{remaining_xp}`", inline=True)
 
             # Add progress bar & time for 40
-            embed.add_field(name=f"{self.config.arrow_pink_emoji_id} Games remaining", value=f"`{games_needed:.2f} games`", inline=True)
-            embed.add_field(name=f"{self.config.arrow_white_emoji_id} Time remaining", value=f"`{expected_time}`", inline=True)
             embed.add_field(name=f"{self.config.arrow_yellow_emoji_id} Monthly XP", value=f"`{total_monthly}`", inline=True)
-            embed.add_field(name=f"{self.config.green_tick_emoji_id} Level progress", value=f"`{xp_bar} ({percentage})`", inline=True)
+            embed.add_field(name=f"{self.config.arrow_pink_emoji_id} Games needed", value=f"`{games_needed_next_level} games`", inline=True)
+            embed.add_field(name=f"{self.config.arrow_white_emoji_id} Next level in", value=f"`{expected_time}`", inline=True)
+            embed.add_field(name=f"{self.config.loading_green_emoji_id} Current level progress", value=f"`{xp_bar} ({percentage})`", inline=True)
+            embed.add_field(name=f"{self.config.loading_green_emoji_id} Max level progress", value=f"`{max_level_xp_bar} ({max_percentage})`", inline=True)
 
             # Set the last data
             embed.set_thumbnail(url=avatar)
@@ -136,12 +156,19 @@ class XpHandler:
             embed.timestamp = self.datetime_helper.get_current_timestamp()
 
             # Send the embed
-            send_to = self.bot.get_channel(int(tracker_channel))
-            await send_to.send(embed=embed)
+            try:
+                send_to = self.bot.get_channel(int(tracker_channel))
+                await send_to.send(embed=embed)
+            except Exception as e:
+                self.logger.log("ERROR", f"Couldn't send update to guild {user.guild_id} channel {tracker_channel}: {e}. Removing it from database!")
+                await self.logger.discord_log(f"Couldn't send update to guild {user.guild_id} channel {tracker_channel}: {e}. Removing it from database!")
+                await self.logger.dm_guild_owner(user.guild_id, f"Couldn't send update to guild {user.guild_id} channel {tracker_channel}: {e}. Removing it from database! Please, re-set your server's tracking channel.")
+                self.guild_manager.remove_guild(user.guild_id)
+                return
 
         except Exception as e:
             self.logger.log("ERROR", f"While sending update: {e}")
-            await self.logger.discord_log(f"While sending update: {e}")
+            await self.logger.discord_log(f"Error while sending update: {e}")
 
     # Function to track the given user
     async def track_user(self, user):

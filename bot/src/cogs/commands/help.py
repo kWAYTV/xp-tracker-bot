@@ -46,7 +46,7 @@ class Help(commands.Cog):
 
         embed = discord.Embed(title="📄 Bot Commands", description=commands_text, color=0xb34760)
         embed.set_author(name=f"Tracker", icon_url=self.config.csgo_tracker_logo, url="https://kwayservices.top")
-        embed.set_footer(text="CSGO Tracker • discord.gg/kws", icon_url=self.config.csgo_tracker_logo)
+        embed.set_footer(text="CSGO Tracker • kwayservices.top", icon_url=self.config.csgo_tracker_logo)
         embed.set_thumbnail(url=self.config.csgo_tracker_logo)
         embed.set_image(url=self.config.rainbow_line_gif)
         embed.timestamp = self.datetime_helper.get_current_timestamp()
