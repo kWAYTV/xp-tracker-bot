@@ -9,7 +9,7 @@ class SendOwners(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.config = Config()
-        self.logger = Logger()
+        self.logger = Logger(bot)
         self.datetime_helper = DateTime()
 
     # Send owners bot command  
@@ -24,15 +24,14 @@ class SendOwners(commands.Cog):
 
         request_msg = await interaction.followup.send(f"{self.config.green_tick_emoji_id} Trying to send broadcast to all users!", ephemeral=True)
 
-        try:
-            await self.logger.dm_guild_owners(message)
-        except Exception as e:
-            await request_msg.edit(content=f"{self.config.red_cross_emoji_id} Error broadcasting to all users! Check the logs for more information.", ephemeral=True)
-            self.logger.log("ERROR", f"Error broadcasting to all users! Error: {e}")
-            await self.logger.discord_log(f"Error broadcasting to all users! Error: {e}")
-            return
+        success, response_message = await self.logger.dm_guild_owners(message)
 
-        await request_msg.edit(content=f"{self.config.green_tick_emoji_id} Broadcast sent to all users!", ephemeral=True)
+        if not success:
+            self.logger.log("ERROR", f"An error occured while trying to send broadcast to all users! Error: {response_message}")
+            self.logger.discord_log(f"An error occured while trying to send broadcast to all users! Error: {response_message}")
+            return await request_msg.edit(content=f"{self.config.red_cross_emoji_id} An error occured while trying to send broadcast to all users!")
+
+        await request_msg.edit(content=f"{self.config.green_tick_emoji_id} {response_message}")
 
     @send_owners_command.error
     async def send_owners_command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):

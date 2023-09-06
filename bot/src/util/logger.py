@@ -77,11 +77,21 @@ class Logger:
     async def dm_guild_owners(self, message: str):
         guilds = self.bot.guilds
         self.log("INFO", f"Sending message to {len(guilds)} guild owners...")
-        for guild in guilds:
-            owner = guild.owner
-            if owner:
-                await owner.send(message)
-                await asyncio.sleep(4)  # Use 'await' to pause execution
-            else:
-                self.log("ERROR", f"Could not find the owner of the guild with id {guild.id}")
-                await self.discord_log(f"Could not find the owner of the guild with id {guild.id}")
+        try:
+            for guild in guilds:
+                owner = guild.owner
+
+                if owner.dm_channel is None:
+                    await owner.create_dm()
+
+                if owner.dm_channel != None:
+                    await owner.dm_channel.send(message)
+
+                await asyncio.sleep(3)
+        except Exception as e:
+            self.log("ERROR", f"Error broadcasting to a user! Error: {e}")
+            await self.discord_log(f"Error broadcasting to a user! Error: {e}")
+
+        self.log("INFO", f"Message sent to {len(guilds)} guild owners!")
+        await self.discord_log(f"Message sent to {len(guilds)} guild owners!")
+        return True, f"Message sent to {len(guilds)} guild owners!"

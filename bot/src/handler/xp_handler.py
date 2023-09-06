@@ -1,4 +1,4 @@
-import requests, discord, asyncio
+import requests, discord, asyncio, time
 from discord.ext import commands
 from src.util.logger import Logger
 from src.helper.config import Config
@@ -226,6 +226,9 @@ class XpHandler:
 
         # Get all users and check them
         users = self.database.get_users()
+        if not len(users) >= 1:
+            return await asyncio.sleep(3)
+
         self.logger.log("INFO", f"Checking xp for {len(users)} users.")
         
         # Check the users

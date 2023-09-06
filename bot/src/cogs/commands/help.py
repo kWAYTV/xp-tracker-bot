@@ -9,6 +9,8 @@ commands_text = f"""
 **🌎 Main Commands**
   > - */help* - Show this help message.
   > - */ping* - Test the bot latency and response.
+  > - */get_total_users* - Get the total users the bot's tracking.
+  > - */get_time_remaining* - Get the total time remaining until the next weekly xp reset.
 
 **👤 Profile Checker Commands**
   > - */check* - Add some steam profile to the queue to be profile-checked.
