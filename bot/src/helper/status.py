@@ -12,7 +12,7 @@ class BotStatus:
         self.sentences = [
             lambda self: f"Holding {len(self.bot.guilds)} guilds & {sum(guild.member_count for guild in self.bot.guilds)} users.",
             lambda self: f"Tracking {self.database.get_users_count()} users.",
-            lambda self: f"XP Reset: {self.datetime_helper.time_until_next_wednesday()}"
+            lambda self: f"XP Reset: {self.datetime_helper.time_until_next_wednesday()} remaining. (GMT+2, Madrid, Spain)",
         ]
 
         self.status_generator = cycle(self.sentences)

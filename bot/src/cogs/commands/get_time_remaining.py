@@ -19,7 +19,7 @@ class GetTimeRemaining(commands.Cog):
         embed = discord.Embed(title="⌛ Time remaining", description="Below you have the total time remaining for the next weekly xp reset:", color=0xb34760)
         embed.add_field(name="Total", value=f"```{remaining_time}```", inline=True)
         embed.set_author(name=f"Tracker", icon_url=self.config.csgo_tracker_logo, url="https://kwayservices.top")
-        embed.set_footer(text="CSGO Tracker • kwayservices.top", icon_url=self.config.csgo_tracker_logo)
+        embed.set_footer(text="CSGO Tracker • Timezone used: GMT+2 (Madrid, Spain) • kwayservices.top", icon_url=self.config.csgo_tracker_logo)
         embed.set_thumbnail(url=self.config.csgo_tracker_logo)
         embed.set_image(url=self.config.rainbow_line_gif)
         embed.timestamp = self.datetime_helper.get_current_timestamp()

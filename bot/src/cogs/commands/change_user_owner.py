@@ -11,7 +11,6 @@ from src.manager.xp_manager import XpManager
 class ChangeUserOwner(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.utils = Utils()
         self.config = Config()
         self.logger = Logger(self.bot)
         self.checker = Checker()
@@ -29,7 +28,7 @@ class ChangeUserOwner(commands.Cog):
         await interaction.response.defer(ephemeral=hidden)
 
         # Clean the username
-        username = await self.utils.clean_discord_username(f"{interaction.user.name}#{interaction.user.discriminator}")
+        username = Utils.clean_discord_username(f"{interaction.user.name}#{interaction.user.discriminator}")
         
         # Send the loading message
         changing_message = await interaction.followup.send(f"{self.config.loading_green_emoji_id} Trying to change {id}'s associated owner id.", ephemeral=hidden)

@@ -15,7 +15,6 @@ from src.manager.admin_mode_manager import AdminModeManager
 class AddUser(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.utils = Utils()
         self.config = Config()
         self.checker = Checker()
         self.database = XpManager()
@@ -35,7 +34,7 @@ class AddUser(commands.Cog):
         await interaction.response.defer(ephemeral=hidden)
 
         # Clean the username
-        username = await self.utils.clean_discord_username(f"{interaction.user.name}#{interaction.user.discriminator}")
+        username = Utils.clean_discord_username(f"{interaction.user.name}#{interaction.user.discriminator}")
 
         # Send the loading message
         added_message = await interaction.followup.send(f"{self.config.loading_green_emoji_id} Trying to add id `{id}` to the tracker database.", ephemeral=hidden)

@@ -13,7 +13,6 @@ from src.manager.admin_mode_manager import AdminModeManager
 class RemoveUser(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.utils = Utils()
         self.config = Config()
         self.logger = Logger(self.bot)
         self.checker = Checker()
@@ -31,7 +30,7 @@ class RemoveUser(commands.Cog):
         await interaction.response.defer(ephemeral=hidden)
 
         # Clean the username
-        username = await self.utils.clean_discord_username(f"{interaction.user.name}#{interaction.user.discriminator}")
+        username = Utils.clean_discord_username(f"{interaction.user.name}#{interaction.user.discriminator}")
 
         added_message = await interaction.followup.send(f"{self.config.loading_green_emoji_id} Trying to remove id `{id}` from the tracker database.", ephemeral=hidden)
 

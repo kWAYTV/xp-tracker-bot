@@ -10,7 +10,6 @@ from src.manager.admin_mode_manager import AdminModeManager
 class AdminModeCommand(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.utils = Utils()
         self.config = Config()
         self.logger = Logger(bot)
         self.datetime_helper = DateTime()
@@ -28,7 +27,7 @@ class AdminModeCommand(commands.Cog):
         await interaction.response.defer(ephemeral=hidden)
 
         # Clean the username
-        username = await self.utils.clean_discord_username(f"{interaction.user.name}#{interaction.user.discriminator}")
+        username = Utils.clean_discord_username(f"{interaction.user.name}#{interaction.user.discriminator}")
 
         request_message = await interaction.followup.send(f"{self.config.loading_green_emoji_id} Trying to set admin mode to `{switch}`.", ephemeral=hidden)
 

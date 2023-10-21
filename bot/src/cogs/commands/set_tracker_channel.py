@@ -10,7 +10,6 @@ from src.manager.timeout_manager import TimeoutManager
 class SetXpChannel(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.utils = Utils()
         self.config = Config()
         self.logger = Logger(self.bot)
         self.guild_manager = GuildManager()
@@ -27,7 +26,7 @@ class SetXpChannel(commands.Cog):
         await interaction.response.defer(ephemeral=hidden)
 
         # Clean the username
-        username = await self.utils.clean_discord_username(f"{interaction.user.name}#{interaction.user.discriminator}")
+        username = Utils.clean_discord_username(f"{interaction.user.name}#{interaction.user.discriminator}")
 
         # Check if the user is in timeout
         is_in_timeout, time_remaining = self.timeout_manager.is_user_in_timeout(interaction.user.id)

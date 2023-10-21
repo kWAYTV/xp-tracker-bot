@@ -11,7 +11,6 @@ from src.manager.xp_manager import XpManager
 class Earned(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.utils = Utils()
         self.config = Config()
         self.checker = Checker()
         self.xp_manager = XpManager()
@@ -28,7 +27,7 @@ class Earned(commands.Cog):
         await interaction.response.defer(ephemeral=hidden)
 
         # Clean the username
-        username = await self.utils.clean_discord_username(f"{interaction.user.name}#{interaction.user.discriminator}")
+        username = Utils.clean_discord_username(f"{interaction.user.name}#{interaction.user.discriminator}")
 
         # Tell the user that the bot is working on their order and log it to console and logs channel
         requested_message = await interaction.followup.send(f"{self.config.loading_green_emoji_id} Requesting database for {id}'s xp.")
