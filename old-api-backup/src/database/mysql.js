@@ -1,10 +1,10 @@
 const mysql = require('mysql2/promise');
 const conOptions = {
-    host     : '45.155.36.154',
-    port     : '3306',
-    user     : 'kwsclub_zaptons',
-    password : 'Zaptons123!',
-    database : 'kwsclub_auth'
+    host     : '',
+    port     : '',
+    user     : '',
+    password : '',
+    database : ''
 };
 
 const connection = mysql.createPool(conOptions);
