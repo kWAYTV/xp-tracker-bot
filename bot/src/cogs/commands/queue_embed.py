@@ -25,7 +25,7 @@ class QueueEmbed(commands.Cog):
             return await interaction.followup.send(f"{self.config.red_cross_emoji_id} Queue embed is disabled in the config! Enable it and restart the bot.", ephemeral=True)
         
         embed = discord.Embed(title="📝 CSGO Queue.", color=0xb34760)
-        embed.set_footer(text="CSGO Tracker • discord.gg/kws", icon_url=self.config.csgo_tracker_logo)
+        embed.set_footer(text="CSGO Tracker • kwayservices.top", icon_url=self.config.csgo_tracker_logo)
         embed.set_thumbnail(url=self.config.csgo_tracker_logo)
         embed.set_image(url=self.config.rainbow_line_gif)
         embed.timestamp = self.datetime_helper.get_current_timestamp()

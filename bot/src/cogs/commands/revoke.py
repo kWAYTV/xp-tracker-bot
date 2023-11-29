@@ -10,7 +10,6 @@ from src.manager.timeout_manager import TimeoutManager
 class Revoke(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.utils = Utils()
         self.config = Config()
         self.logger = Logger(self.bot)
         self.datetime_helper = DateTime()
@@ -28,7 +27,7 @@ class Revoke(commands.Cog):
         await interaction.response.defer(ephemeral=True)
 
         # Clean the username
-        request_username = await self.utils.clean_discord_username(f"{interaction.user.name}#{interaction.user.discriminator}")
+        request_username = Utils.clean_discord_username(f"{interaction.user.name}#{interaction.user.discriminator}")
 
         # Send a loading message
         requested_message = await interaction.followup.send(f"{self.config.loading_green_emoji_id} Revoking timeout...")

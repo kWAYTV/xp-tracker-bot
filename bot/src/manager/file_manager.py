@@ -30,6 +30,8 @@ leaderboard_embed_message_id:
 user_timeout: 300
 # Discord update embeds delay (in seconds)
 update_embeds_delay: 
+# Medals output image directory (Ex: /root/cs-tracker-api/src/data/medals/output)
+medals_output_dir: 
 
 # Emoji IDs
 # Discord green tick emoji id

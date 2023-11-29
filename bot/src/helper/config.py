@@ -30,6 +30,7 @@ class Config:
         self.leaderboard_embed_channel_id = int(self.config["leaderboard_embed_channel_id"])
         self.leaderboard_embed_message_id = int(self.config["leaderboard_embed_message_id"])
         self.update_embeds_delay = int(self.config["update_embeds_delay"])
+        self.medals_output_dir = self.config["medals_output_dir"]
 
         # Emoji IDs
         self.loading_green_emoji_id = self.config["loading_green_emoji_id"]

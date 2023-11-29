@@ -9,6 +9,8 @@ commands_text = f"""
 **🌎 Main Commands**
   > - */help* - Show this help message.
   > - */ping* - Test the bot latency and response.
+  > - */get_total_users* - Get the total users the bot's tracking.
+  > - */get_time_remaining* - Get the total time remaining until the next weekly xp reset.
 
 **👤 Profile Checker Commands**
   > - */check* - Add some steam profile to the queue to be profile-checked.
@@ -46,7 +48,7 @@ class Help(commands.Cog):
 
         embed = discord.Embed(title="📄 Bot Commands", description=commands_text, color=0xb34760)
         embed.set_author(name=f"Tracker", icon_url=self.config.csgo_tracker_logo, url="https://kwayservices.top")
-        embed.set_footer(text="CSGO Tracker • discord.gg/kws", icon_url=self.config.csgo_tracker_logo)
+        embed.set_footer(text="CSGO Tracker • kwayservices.top", icon_url=self.config.csgo_tracker_logo)
         embed.set_thumbnail(url=self.config.csgo_tracker_logo)
         embed.set_image(url=self.config.rainbow_line_gif)
         embed.timestamp = self.datetime_helper.get_current_timestamp()

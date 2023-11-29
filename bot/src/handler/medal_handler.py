@@ -1,10 +1,12 @@
 import os
 from src.util.logger import Logger
+from src.helper.config import Config
 
 class MedalHandler:
     def __init__(self):
         self.logger = Logger()
-        self.base_dir = "/root/cs-tracker-api/src/data/medals/output"
+        self.config = Config()
+        self.base_dir = self.config.medals_output_dir
 
     # Function to get the medals image path
     async def get_image_path(self, image_name: str):

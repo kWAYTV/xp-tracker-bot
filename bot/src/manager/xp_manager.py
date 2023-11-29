@@ -82,6 +82,25 @@ class XpManager:
             rows = cursor.fetchall()
         return [TrackedUser(*row) for row in rows]
 
+    # Function to get how many users are in the database
+    def get_users_count(self):
+        with self.connection:
+            cursor = self.connection.cursor()
+            cursor.execute("SELECT COUNT(*) FROM tracking")
+            row = cursor.fetchone()
+        return row[0]
+
+    def get_users_count_by_guild_id(self, guild_id):
+        try:
+            with self.connection:
+                cursor = self.connection.cursor()
+                cursor.execute("SELECT COUNT(*) FROM tracking WHERE guild_id = ?", (guild_id,))
+                row = cursor.fetchone()
+        except sqlite3.Error as e:
+            self.logger.log("ERROR", f"Error getting user count by guild id: {e}")
+            return None
+        return row[0] if row else 0
+
     # Function to update the data of a user
     def update_user_level_and_xp(self, steam_id, new_level, new_xp, total_earned, global_earned):
         try:

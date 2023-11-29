@@ -1,9 +1,10 @@
 class Utils:
 
     def __init__(self):
-        return
+        pass
 
-    async def clean_discord_username(self, username: str) -> str:
+    @staticmethod
+    def clean_discord_username(username: str) -> str:
         username_split = username.split("#")
         if username_split[1] == "0":
             return f"@{username_split[0]}"
